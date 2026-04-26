@@ -2,7 +2,7 @@
 
 > ⚠️ 论文 PDF 原文件不纳入 Git 版本管理（见 `.gitignore`）。  
 > 本文件作为论文索引，记录每篇论文的元信息和获取方式。  
-> **Last Updated:** 2026-04-26
+> **Last Updated:** 2026-04-27
 
 ## 收录论文
 
@@ -16,6 +16,8 @@
 | 6 | AgentSeer: Evaluating Agentic Vulnerabilities | 2026 | [2504.02873](https://arxiv.org/abs/2504.02873) | ✅ `AgentSeer.pdf` | [06](../notes/06_agentseer_agentic_vulnerabilities.md) 🔲 |
 | 7 | Agent-as-a-Judge (原始 + 综述) | 2025/2026 | [2410.10934](https://arxiv.org/abs/2410.10934) / [2601.05111](https://arxiv.org/abs/2601.05111) | ✅ 2 篇 | [07](../notes/07_agent_as_a_judge.md) 🟡 |
 | 8 | TIDE + TRACE | 2026 | [2602.02196](https://arxiv.org/abs/2602.02196) / [2602.05428](https://arxiv.org/abs/2602.05428) | ✅ 2 篇 | [08](../notes/08_tide_trace_diagnostics.md) 🟡 |
+| 9 | Trajectory Guard: Lightweight Sequence-Aware Anomaly Detection | 2026 | [2601.00516](https://arxiv.org/abs/2601.00516) | — | [09](../notes/09_trajectory_guard_a_lightweight_sequence_aware.md) ✅ |
+| 10 | Policy-Invisible Violations in LLM-Based Agents (Sentinel / PhantomPolicy) | 2026 | [2604.12177](https://arxiv.org/abs/2604.12177) | — | [10](../notes/10_policy_invisible_violations_in_llm_based.md) ✅ |
 
 > **图例：** ✅ 全文已读 | 🟡 摘要/综述已读 | 🔲 待读  
 > **PDF 说明：** `Breaking the Observability Tax` 发表于 IEEE Access（付费），需通过机构权限从 [IEEE Xplore](https://doi.org/10.1109/ACCESS.2026.3675074) 手动下载。

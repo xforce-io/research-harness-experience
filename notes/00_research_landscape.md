@@ -66,13 +66,18 @@
 | Trajectory Guard [9] | Agent-as-a-Judge [7] | [9] 显式以 Phi-3-mini / GPT-4o-Mini / Gemini Flash / Deepseek 作 Judge 基线，主张以 17–27× 推理速度优势替代之；属"评估 vs 采样"分歧的有监督小模型变体 [9: Table 3, Table 4] |
 | Trajectory Guard [9] | AgentSeer [6] | 拒绝纯语义检测的两种结构视图：[9] 走序列（GRU 时序），[6] 走图（action-component 拓扑），可叠加 [9: Relations] |
 | AgentTrace [4] | Trajectory Guard [9] | [9] 输入 AgentAlign 风格的结构化 tool call 序列，隐式假设 AgentTrace 类 Operational + Contextual 日志已就位（论文未引用，按数据格式反推）[9: §Method] |
+| Sentinel / PhantomPolicy [10] | Trajectory Guard [9] | L1 邻近层的范式分叉：[10] 用声明式不变量 + 反事实 KG 模拟（O(\|M\|)，acc 0.93 / F1 0.93），显式拒绝把世界知识压入模型权重；[9] 用 Siamese RNN 黑箱小代理（F1 0.92）。指标接近但**学习型 vs 声明型**立场对立，KWeaver 设计中需立场选择 [10: §6.1, Theorem 1, Relations] |
+| Sentinel [10] | Signals [1] | 同属"非 LLM、规则化、动作时"判定家族；目标不同：[1] 做轨迹采样信息量、[10] 做合规阻断。[10] 的 I1 ActiveRecipient / I2 ContextBoundary / I7 Liveness 可作为 Signals 三类信号中 Environment 类的具体不变量样板 [10: §4.6, Relations] |
+| Sentinel [10] | AgentSeer [6] | 都把 agent 行为视为图变更并在图上做结构判定，但**图的语义不同**：AgentSeer 图 = 轨迹结构（action component / causal link）；Sentinel 图 = 组织世界图（entity / relation / flow）。前者抓 agent 内部行为异常，后者抓 agent 行为对外部世界的合规态扰动；KWeaver L1 实际两图都需要 [10: Relations] |
+| AgentTrace [4] | Sentinel [10] | Sentinel 的 session context S（source_scope / accumulated data_sources / project context）等价于 AgentTrace Operational + Contextual + User-Interaction 三类 surface 在动作判定时的实时摘要；Coverage 实验中 scope 标注缺失即让 recall 100→40%，是 thesis"L0 schema 是 silent gating constraint"的具体例证 [10: §6.3, Table 10] |
+| Sentinel [10] | Agent-as-a-Judge [7] | [10] 用 policy-in-prompt（在 system prompt 中注入高层规则但仍隐藏实体级元数据）作为 LLM-judge / prompt-level 防御的代理对照，实测违规率仅从 95.3% 降到 40.7% 且跨模型 25%–85% 不一致，论证"决定性事实未进上下文 → 任何模型类判定结构性失败"；与 thesis"sampling informativeness ≠ judgment accuracy"是同一观察的 enforcement 侧 [10: §5.2 Table 6, F3] |
 
 ## 与 KWeaver TraceAI 的映射
 
 | 研究层 | KWeaver 落地组件 | 当前状态 |
 |--------|-----------------|---------|
 | Layer 0 基础设施 | TraceAI Collector / Schema | 已有基础，需参考 AgentTrace 补全 Schema |
-| Layer 1 信号分诊 | TraceAI Triage Center (待建) | 需实现正则探针 + 状态机探针；[9] Trajectory Guard 作"学习型小代理"备选路线（黑箱、二元输出，与可解释规则路线互斥） |
+| Layer 1 信号分诊 | TraceAI Triage Center (待建) | 需实现正则探针 + 状态机探针；[9] Trajectory Guard 作"学习型小代理"备选路线（黑箱、二元输出，与可解释规则路线互斥）；[10] Sentinel 提供"声明式 KG 不变量"样板（环境类信号），与 [9] 立场对立 |
 | Layer 2 数据转化 | Data Flywheel Pipeline (待建) | 需参考 AgentHER 设计重标管道 |
 | Layer 3 模型迭代 | 私有模型微调 (未来) | 依赖 Layer 2 产出 |
 
@@ -87,6 +92,7 @@
    - [5] Breaking the Observability Tax — 成本控制策略
    - [6] AgentSeer — 非语义检测验证
    - [9] Trajectory Guard ✅ 已读 — L1 分诊层"学习型小代理"对照组，方法论与 [1] 互斥
+   - [10] Sentinel / PhantomPolicy ✅ 已读 — 动作时声明式 KG 不变量验证；L1 邻居（enforcement 侧），与 [9] 学习型路线分叉，并为 thesis"schema 是 silent gating constraint"提供 Coverage 退化实证
 
 3. 🟢 **P2 — 参考，拓宽理论视野**
    - [3] TSR — 训练期轨迹优化（与部署后场景互补）
