@@ -22,7 +22,7 @@
 ## 论文收录 (Paper Collection)
 
 > 详见 [`papers/README.md`](papers/README.md) 和 [`notes/00_research_landscape.md`](notes/00_research_landscape.md)  
-> **Last Updated:** 2026-04-26
+> **Last Updated:** 2026-04-27
 
 | # | 论文 | 研究层 | 优先级 | 笔记状态 |
 |---|------|--------|--------|---------|
@@ -34,3 +34,5 @@
 | 6 | AgentSeer: Agentic Vulnerabilities | 筛选分诊 | P1 | 🔲 待读 |
 | 7 | Agent-as-a-Judge | 评估范式 | P2 | 🟡 综述已读 |
 | 8 | TIDE / TRACE | 评估范式 | P2 | 🟡 摘要已读 |
+| 9 | Trajectory Guard: Sequence-Aware Anomaly Detection | 筛选分诊 | P1 | ✅ 已读 |
+| 10 | Sentinel / PhantomPolicy: Counterfactual KG Verifier | 筛选分诊 | P1 | ✅ 已读 |
