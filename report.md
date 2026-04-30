@@ -1,10 +1,14 @@
-# KWeaver TraceAI：服务于 AI 工程飞轮的双轨 Trace 与 Triage Agent
+# KWeaver TraceAI：服务于 AI 工程飞轮的双轨 Trace 与 Triage Agent: Research Report
 
-> **形式：** 内部技术报告 / Position Paper（v2.0）
+> **Version:** v2.3 (9 papers)
+> **Last Updated:** 2026-04-30
+> **Papers:** [01](notes/01_signals_trajectory_triage.md), [02](notes/02_agenther_hindsight_relabeling.md), [03](notes/03_tsr_trajectory_search_rollouts.md), [04](notes/04_agenttrace_structured_logging.md), [07](notes/07_agent_as_a_judge.md), [08](notes/08_tide_trace_diagnostics.md), [09](notes/09_trajectory_guard_a_lightweight_sequence_aware.md), [10](notes/10_policy_invisible_violations_in_llm_based.md), [11](notes/11_near_miss_latent_policy_failure_detection.md)
+> **Thesis:** [.researcher/thesis.md](.researcher/thesis.md)
+
+> **形式：** 内部技术报告 / Position Paper
 > **作者：** xupeng
-> **日期：** 2026-04-26
 > **基于：**
-> - 6 篇深读论文（Signals、AgentTrace、Agent-as-a-Judge、TIDE、AgentHER、TSR）+ 3 篇待补 — 索引见 [`references/papers/INDEX.md`](references/papers/INDEX.md)
+> - 9 篇深读论文（Signals、AgentHER、TSR、AgentTrace、Agent-as-a-Judge、TIDE、Trajectory Guard、Sentinel、Near-Miss）+ 2 篇待补（Breaking Obs Tax、AgentSeer）— 索引见 [`papers/README.md`](papers/README.md)
 > - **KWeaver 项目资料**（脱敏后入 [`references/`](references/)）：纲领（[01](references/01_overcoming_ontology.md)）、路线图（[02](references/02_engineering_roadmap.md)）、产品概览（[03](references/03_kweaver_core_overview.md)）、技术深度（[04](references/04_kweaver_core_deep_analysis.md)）、Harness Engineering 位置论（[05](references/05_harness_engineering_position.md)）
 > **目标读者：** KWeaver TraceAI / Decision Agent / Triage Agent 设计与工程团队
 > **目标：** 把学术研究映射到 KWeaver 飞轮的具体差距，特别是为 **Triage Agent prototype 设计**提供可操作的输入
@@ -180,6 +184,42 @@ KWeaver 的飞轮反哺**不能是"看 trace 全部喂回 BKN"**——那是噪�
 
 **重要立场（来自 Signals 论文）**：信号**不是质量分**——它们只标"这条 trace 值得 Triage Agent 处理"，不评对错、不开药方。**Triage Agent 的输入是带信号标签的 trace 流，不是分数排名**。
 
+#### 3.2.1 成功轨迹中的"侥幸"信号（Near-Miss / Latent Failure）
+
+> **核心补充（Near-Miss 论文 [11]）**：在 outcome=success 的子集上提供一个**确定性、非 LLM-judge** 的可计算 friction 信号——agent 跳过策略要求的前置检查、却因为客户事实恰好正确而到达正确终态。该信号是 thesis"成功轨迹的 2/3 仍含可学习 friction"在 mutating-tool 场景下的精确化实现。
+
+| 维度 | Near-Miss 信号定位 |
+|------|------------------|
+| 触发条件 | trace 含 ≥1 mutating tool call（MTC）+ 终态匹配 gold |
+| 检测机制 | 用 ToolGuard 自动生成的 `guard_<MTC>(args)` 作为 oracle，重放执行；guard 内引用的每个 read-only 工具都被解读为"该 MTC 的策略前提"；在 trace 历史中反向搜索是否存在等价 RO 调用 |
+| 输出 | 二元标签 `latent_failure ∈ {TRUE, FALSE}` + 漏读的 RO 列表 + 对应的 guard 引用 |
+| 实证表现 | τ²-Airlines 上含 MTC 子集 8.6%–17.3% latent failure 率（GPT-oss-120b 最低，GPT5-chat 最高）；code-gen + Claude-Sonnet4 实现路径 P=R=1.00（单标注者 ground truth，~400 sims）[11: §4.2–§4.3] |
+| 工具级偏置 | `update_reservation_flights()` 最易被无前置检查直接调用；`get_flight_status()` 最常被绕过 [11: §4.4] |
+
+**对 KWeaver 的两点直接含义**：
+
+1. **Near-Miss 是 Signals.Execution 信号在 mutating-tool 场景的领域特化版本**——把通用 phrase pattern 换成"BKN.Action 的前置约束 → 必读 RO 集合"。在 KWeaver 中，BKN 已经为每个 Action 定义了前置约束（PreCondition），可以**反向自动生成 guard code**：扫 BKN.Action 的 PreCondition → 列出"满足该约束所需的最小 RO 集合"→ 在 trace 历史中检索是否被读取。这条路径**避开了 ToolGuard 论文中需要 LLM 离线生成 guard code 的成本**——KWeaver 的 BKN 已经携带了等价信息。
+
+2. **Near-Miss 与 Sentinel [10] 形成 in-line / post-hoc 互补**：Sentinel 在动作时反事实拦截显式违规（block-only），明确不覆盖"outcome=correct 但 process=non-compliant"子集；Near-Miss 在轨迹后用 guard code 重放检测侥幸绕过。两者共享"executable rules > LLM-judge"哲学，可联合部署：Sentinel 在线、Near-Miss 离线。
+
+**Triage Agent 输入 schema 扩充**（在 §4.2.1 yaml 上加一个 `latent_failures` 字段）：
+
+```yaml
+signals:
+  ...
+  latent_failures:                       # ← 新增（Near-Miss 信号）
+    - mtc: "update_reservation_flights"  # 哪次 mutating call 漏检
+      args: { ... }
+      missing_ro_set:                    # 应读但未读的等价 RO 集合
+        - "get_flight_status"
+      guard_ref: "guard_update_reservation_flights:within_24_hours"
+```
+
+**重要边界（论文 §6 + 自批判）**：
+- 该信号**只在 outcome=success 的子集上有意义**——失败轨迹的策略遵从度由 Sentinel / Signals.Execution.Failure 处理。
+- 论文的"危害论"建立在 non-adversarial 假设上；KWeaver 在敌对场景（如对话中用户故意提供不实事实）需要把 Near-Miss 升级为实时拦截信号——这正好回到 Sentinel [10] 的范式。
+- ToolGuard guard 自身的质量构成上界：guard 漏写一个前置约束就会产生 latent_failure 的 false negative；KWeaver 用 BKN.PreCondition 作为生成源时，要求 BKN 完备性——这又把负担推回到"BKN 自演化"环节，形成飞轮的反身性。
+
 ### 3.3 燃料消化：Trace 如何转为 BKN/Context patch
 
 **主要论文：AgentHER（思想借鉴）+ TIDE（动力学指标）**
@@ -204,6 +244,33 @@ Stage 4: Data Augmenter         → 不打包训练数据，而是生成 BKN PR
 - **AUV**（成功率随交互轮次的曲线下面积）→ 直接作为 Decision Agent 任务效率指标
 - **LR**（Loop Ratio）→ 与 Signals.Execution.Loop 形成"标签 + 量化"组合：标签由信号检测，量化由 LR 给出，**用 DPH 编排定义本身作为 cycle 检测的 ground-truth baseline**（比 TIDE 的 embedding 阈值方法更可靠，KWeaver 独有优势）
 - **MI**（Memory Index）→ 当前阶段语义模糊，**暂不实装**
+
+#### 3.3.1 Near-Miss 标注 → DPO 对的零成本生成
+
+> 当 §3.2.1 的 Near-Miss 信号产出 `(原 trace, missing_ro_set)` 二元标注时，**hindsight relabel 几乎不需要 LLM 推理**——纠正轨迹的结构是机械可生成的。
+
+**重定向 AgentHER 思想到 Near-Miss-driven 偏好对生成**：
+
+```
+Near-Miss 标注                        机械生成的偏好对（无需 LLM 重写整段轨迹）
+─────────────────────────────────────────────────────────
+原 trace（latent_failure=TRUE）  →   负样本：[..., MTC(args), ...]
++ missing_ro_set                     正样本：[..., RO_i(args_i), ..., MTC(args), ...]
++ guard_ref（可解释来源）              其中 RO_i 注入位置 = MTC 之前最近的合法点
+```
+
+这条路径的**经济性**优于 AgentHER 完整管道：
+
+| 阶段 | AgentHER 完整管道 | Near-Miss-driven 路径 |
+|------|------------------|---------------------|
+| Stage 1 失败检测 | 通用 LLM 失败分类器 | guard code 重放（确定性，无 LLM）|
+| Stage 2 Outcome 提取 | LLM 抽取实际达成 | 已知（trace 终态匹配 gold）|
+| Stage 3 Prompt Relabel | LLM 改写 task description | **不需要**——任务不变，只是动作序列要先调 RO |
+| Stage 4 数据增广 | LLM 合成对照样本 | **机械注入**：在 MTC 前插一次 RO 调用即可 |
+
+→ 这是 thesis 可证伪命题 (b) "hindsight relabeling of L1-triaged traces produces measurable downstream win rates over random-sampled preference data" 的**最低成本可验证路径**。在 KWeaver 飞轮初期（数据量小、人工预算紧）尤其适合作为第一个 end-to-end 闭环实验。
+
+**与 §3.3 主路径的关系**：完整 AgentHER 重定向（BKN patch 候选生成）覆盖**所有失败类型**；Near-Miss 路径只覆盖**MTC 漏前置检查**这一窄类，但产出的偏好对**质量更高、来源可审计、无需 LLM 二次创作**。两路并行，覆盖率与质量互补。
 
 ### 3.4 燃料经济学：成本控制（待补）
 
@@ -532,4 +599,13 @@ Triage Agent 自己的输出也需要被评估，否则飞轮的"反哺通道"�
 
 ---
 
-*Report version: v2.0（2026-04-26）。重大修正基于 KWeaver 路线图设计稿，全面对齐 Harness Engineering 定位与飞轮中心论。*
+## 版本更新日志
+
+| 版本 | 日期 | 新增论文 | 关键变化 |
+|------|------|---------|---------|
+| v2.0 | 2026-04-26 | — | 重大修正：基于 KWeaver 路线图设计稿，全面对齐 Harness Engineering 定位与飞轮中心论；从 4-Layer Stack 重组为飞轮 4 环节 |
+| v2.1 | — | [09] Trajectory Guard | L1 分诊层"学习型小代理"对照组（待回填） |
+| v2.2 | — | [10] Sentinel / PhantomPolicy | L1 enforcement 侧"声明式 KG 不变量"样板；为"schema 是 silent gating constraint"提供 Coverage 实证（待回填） |
+| v2.3 | 2026-04-30 | [11] Near-Miss | §3.2.1 新增 Near-Miss 信号定义（成功轨迹中的 latent failure 检测），与 [10] Sentinel 形成 in-line/post-hoc 互补；§3.3.1 新增 Near-Miss-driven DPO 对零成本生成路径，作为 thesis 命题 (b) 的最低成本可验证路径；Triage Agent 输入 schema 扩充 `latent_failures` 字段 |
+
+*Report version: v2.3（2026-04-30）。基于 KWeaver 路线图设计稿，全面对齐 Harness Engineering 定位与飞轮中心论。*
