@@ -77,6 +77,11 @@
 | AgentHER [2] | Near-Miss [11] | [11] 检出的 latent failure 自带可纠正模式："原轨迹（绕过策略）"vs"先调 RO 再调 MTC（合规版）"——可直接形成 DPO 对的负正样本。[11] 论文未提此用法，但其方法输出物（latent failure 标注 + 漏读 RO 列表）即为 L2 hindsight relabel 可消费的结构化提示；这是该论文对 KWeaver 主线最直接的贡献 [11: §3.3 listing, Relations] |
 | AgentTrace [4] | Near-Miss [11] | [11] 的 history search 阶段强依赖于 trace schema 中**完整保留每次 tool call 的 name + args + return value**——若日志只存 tool name 而省略 args/return，等价 RO 跨 schema 字段匹配即失效。该论文为 thesis"L0 schema 是 silent gating constraint"提供又一具体例证：缺字段直接让方法不可用 [11: Appendix A.1; 4: §3 Operational surface] |
 | Trajectory Guard [9] | Near-Miss [11] | "learned small surrogate vs declarative oracle"的明确分叉：[9] 把世界知识压进 Siamese RNN 权重输出 anomaly score；[11] 要求世界知识住在 guard code 与历史结构中并给出"缺少哪个 RO"的可解释解释。F1 数字落点接近（[9] ~0.92，[11] code-gen 路径 P=R=1.00 但单标注者 ground truth 偏弱），范式对立 [11: §4.2; 9: §Methodology] |
+| Near-Miss [11] | AHE [12] | "判定该不该用 LLM"的范式对立：[11] 主张确定性 guard code + 结构化历史搜索代替 LLM-judge；[12] Agent Debugger 把 trajectory 解读完全交给 LLM-agent 在文件系统上自由探索，三层 observability（Component / Experience / Decision）全部依赖 LLM 调用。AHE +7.3 pp 但代价 32 小时 + 数十亿 token；Near-Miss code-gen 路径 P=R=1.00（单标注者 ground truth 偏弱）。立场对立——同条 contradiction 已落 contradictions.md [12: §3.2, §5.2; 11: §1, §5] |
+| Agent-as-a-Judge [7] | AHE [12] | [12] 的 Agent Debugger 与 [7] 同源——都用 LLM-agent 读 trajectory 做语义判定，区别仅在输出消费方：[7] 给 outcome-evaluator，[12] 给 evolve agent。cost / 可解释性 / 可复现性问题完全继承自 [7]，论文未做"raw cleaned trace 直接喂 evolve agent"的消融。在 thesis"LLM-judging 留给 triaged 后的小子集"判断方向上，[12] 把 LLM-judging 用在**全部 trajectory**（每任务 k=2 traces 全跑）——thesis 明确反对的部署模式 [12: §3.2; 7: §4] |
+| AgentTrace [4] | AHE [12] | [12] 的 7 类组件文件 + git history + change manifest 实质上是为"harness mutation"设计的一套 trace schema，与 [4] 的 deployment-time trace schema 同构。在 thesis"L0 schema 是 silent gating constraint"语境下，[12] 提供新例证：**没有解耦的文件级 harness substrate，evolve agent 没法定位每个失败模式的归属组件**——schema 必要性论据从 deployment-time 扩展到 training-loop-time [12: §3.1; 4: §2] |
+| Signals [1] | AHE [12] | 同享"raw trace 不可消费、分层结构化才能可消费"的工程直觉，但 cost 立场对立：[1] rule-based detector（轻量），[12] Agent Debugger（LLM-driven 重组件 / 每条 trace 都进 LLM）。生命周期不同：[1] deployment-time L1 triage，[12] training-loop-time harness self-improvement。AHE 在 thesis"lightweight signal beats LLM-judge"语境下是反例的具体实现，且未对 Agent Debugger 相对 raw trace 做消融 [12: §3.2; 1: §2.1] |
+| AHE [12] | AgentHER [2] | [12] 的 component ablation（system prompt 单换入 −2.3 pp，long-term memory 单换入 +5.6 pp，§4.4.1 Table 3）拷问 [2] 路线：把"经验"显式落到外部 memory 文件比落在 prompt 里效果更稳定，且不需要 SFT 训练。给 hindsight relabel + SFT 的"必要性"提出工程对照点——若 externalize-to-artifacts 就能 +5.6 pp，model-side relabeling 的成本-收益比需重估 [12: §4.4.1; 2: §3] |
 
 ## 与 KWeaver TraceAI 的映射
 
@@ -105,3 +110,4 @@
    - [3] TSR — 训练期轨迹优化（与部署后场景互补）
    - [7] Agent-as-a-Judge — 评估范式对照
    - [8] TIDE / TRACE — 理论延伸
+   - [12] Agentic Harness Engineering ✅ 已读 — **off-axis（harness 自演化，不在四层栈内）**；其 Agent Debugger 是 [7] LLM-judge 路线在 training-loop-time 的具体落地，与 thesis"front-line filtering 用轻量信号"立场对立；但其**falsifiable change manifest**（edit 自带 predicted_fixes / risk_tasks，下一轮 task delta 自动判决并文件级回滚）作为 detector versioning / 信号阈值演化的治理样板可借鉴；fix-prediction 5× random 但 regression-prediction 仅 2× random（§4.4.2）的非对称是 KWeaver Triage Agent 自我归因可靠性的直接量化警示（详见 contradictions.md 中的 taxonomy 提议）
