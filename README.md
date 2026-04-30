@@ -22,7 +22,7 @@
 ## 论文收录 (Paper Collection)
 
 > 详见 [`papers/README.md`](papers/README.md) 和 [`notes/00_research_landscape.md`](notes/00_research_landscape.md)  
-> **Last Updated:** 2026-04-27
+> **Last Updated:** 2026-04-30
 
 | # | 论文 | 研究层 | 优先级 | 笔记状态 |
 |---|------|--------|--------|---------|
@@ -36,3 +36,4 @@
 | 8 | TIDE / TRACE | 评估范式 | P2 | 🟡 摘要已读 |
 | 9 | Trajectory Guard: Sequence-Aware Anomaly Detection | 筛选分诊 | P1 | ✅ 已读 |
 | 10 | Sentinel / PhantomPolicy: Counterfactual KG Verifier | 筛选分诊 | P1 | ✅ 已读 |
+| 11 | Near-Miss: Latent Policy Failure Detection in Agentic Workflows | 评估范式 / 筛选分诊 | P1 | ✅ 已读 |

@@ -2,7 +2,7 @@
 
 > ⚠️ 论文 PDF 原文件不纳入 Git 版本管理（见 `.gitignore`）。  
 > 本文件作为论文索引，记录每篇论文的元信息和获取方式。  
-> **Last Updated:** 2026-04-27
+> **Last Updated:** 2026-04-30
 
 ## 收录论文
 
@@ -18,6 +18,7 @@
 | 8 | TIDE + TRACE | 2026 | [2602.02196](https://arxiv.org/abs/2602.02196) / [2602.05428](https://arxiv.org/abs/2602.05428) | ✅ 2 篇 | [08](../notes/08_tide_trace_diagnostics.md) 🟡 |
 | 9 | Trajectory Guard: Lightweight Sequence-Aware Anomaly Detection | 2026 | [2601.00516](https://arxiv.org/abs/2601.00516) | — | [09](../notes/09_trajectory_guard_a_lightweight_sequence_aware.md) ✅ |
 | 10 | Policy-Invisible Violations in LLM-Based Agents (Sentinel / PhantomPolicy) | 2026 | [2604.12177](https://arxiv.org/abs/2604.12177) | — | [10](../notes/10_policy_invisible_violations_in_llm_based.md) ✅ |
+| 11 | Near-Miss: Latent Policy Failure Detection in Agentic Workflows | 2026 | [2603.29665](https://arxiv.org/abs/2603.29665) | — | [11](../notes/11_near_miss_latent_policy_failure_detection.md) ✅ |
 
 > **图例：** ✅ 全文已读 | 🟡 摘要/综述已读 | 🔲 待读  
 > **PDF 说明：** `Breaking the Observability Tax` 发表于 IEEE Access（付费），需通过机构权限从 [IEEE Xplore](https://doi.org/10.1109/ACCESS.2026.3675074) 手动下载。
