@@ -1,14 +1,14 @@
 # KWeaver TraceAI：服务于 AI 工程飞轮的双轨 Trace 与 Triage Agent: Research Report
 
-> **Version:** v2.3 (9 papers)
-> **Last Updated:** 2026-04-30
-> **Papers:** [01](notes/01_signals_trajectory_triage.md), [02](notes/02_agenther_hindsight_relabeling.md), [03](notes/03_tsr_trajectory_search_rollouts.md), [04](notes/04_agenttrace_structured_logging.md), [07](notes/07_agent_as_a_judge.md), [08](notes/08_tide_trace_diagnostics.md), [09](notes/09_trajectory_guard_a_lightweight_sequence_aware.md), [10](notes/10_policy_invisible_violations_in_llm_based.md), [11](notes/11_near_miss_latent_policy_failure_detection.md)
+> **Version:** v2.4 (10 papers)
+> **Last Updated:** 2026-05-01
+> **Papers:** [01](notes/01_signals_trajectory_triage.md), [02](notes/02_agenther_hindsight_relabeling.md), [03](notes/03_tsr_trajectory_search_rollouts.md), [04](notes/04_agenttrace_structured_logging.md), [07](notes/07_agent_as_a_judge.md), [08](notes/08_tide_trace_diagnostics.md), [09](notes/09_trajectory_guard_a_lightweight_sequence_aware.md), [10](notes/10_policy_invisible_violations_in_llm_based.md), [11](notes/11_near_miss_latent_policy_failure_detection.md), [12](notes/12_agentic_harness_engineering_observability_driven_automatic.md)
 > **Thesis:** [.researcher/thesis.md](.researcher/thesis.md)
 
 > **形式：** 内部技术报告 / Position Paper
 > **作者：** xupeng
 > **基于：**
-> - 9 篇深读论文（Signals、AgentHER、TSR、AgentTrace、Agent-as-a-Judge、TIDE、Trajectory Guard、Sentinel、Near-Miss）+ 2 篇待补（Breaking Obs Tax、AgentSeer）— 索引见 [`papers/README.md`](papers/README.md)
+> - 10 篇深读论文（Signals、AgentHER、TSR、AgentTrace、Agent-as-a-Judge、TIDE、Trajectory Guard、Sentinel、Near-Miss、AHE）+ 2 篇待补（Breaking Obs Tax、AgentSeer）— 索引见 [`papers/README.md`](papers/README.md)
 > - **KWeaver 项目资料**（脱敏后入 [`references/`](references/)）：纲领（[01](references/01_overcoming_ontology.md)）、路线图（[02](references/02_engineering_roadmap.md)）、产品概览（[03](references/03_kweaver_core_overview.md)）、技术深度（[04](references/04_kweaver_core_deep_analysis.md)）、Harness Engineering 位置论（[05](references/05_harness_engineering_position.md)）
 > **目标读者：** KWeaver TraceAI / Decision Agent / Triage Agent 设计与工程团队
 > **目标：** 把学术研究映射到 KWeaver 飞轮的具体差距，特别是为 **Triage Agent prototype 设计**提供可操作的输入
@@ -290,6 +290,22 @@ Agent-as-a-Judge 的最重要工程发现（论文 Table 4）：**最优 4 模�
 
 **AgentHER（完整管道）+ TSR**：保留为远期参考。当 KWeaver 飞轮数据量级达到支撑领域微调时（路线图明确的 reassessment 条件），重新评估。当前阶段不做。
 
+### 3.7 Off-axis：Harness 自演化方法论（AHE）
+
+**主要论文：[12] Agentic Harness Engineering**
+
+> AHE 不在 KWeaver 飞轮的四环节内——它优化的是**给定模型 + 给定 benchmark 下，harness 自身的组件配置**。但其方法论原语对 KWeaver 至少有三处可借鉴：
+
+| AHE 原语 | KWeaver 借鉴方向 | 警惕点 |
+|---------|----------------|-------|
+| **Component observability**：把可编辑面切成 7 类正交文件级组件（system prompt / tool desc / tool impl / middleware / skill / sub-agent / long-term memory），每类失败模式映射单一组件类，每条 logical edit = 一次 git commit | KWeaver 的 BKN 演化、Triage Agent 自身组件、Context Loader 策略集都可遵循"文件级正交 + git diff 可观察"原则——这是 thesis"L0 schema 是 silent gating constraint"在工程层的等价投影：没有解耦的 substrate，归因不可能 [12: §3.1] | "正交"是工程契约不是效果属性——AHE 自己实证三个单组件增益相加 11.1 pp 远超 full AHE 的 7.3 pp，说明 component 之间在效果上实际相互干扰 [12: §4.4.1] |
+| **Falsifiable change manifest**：每条 edit 自带 `predicted_fixes[]` + `risk_tasks[]`，下一轮的 task delta 自动判决，falsified 的 edit 文件级回滚 | 可直接移植为 KWeaver detector versioning / 信号阈值演化的治理样板：每次 detector 调整都附带"我会修哪些已知失败 / 我会引入哪些回归"的预言，下个评估窗口核对，未生效自动回滚——把 rationale-driven self-justification 换成 contract-by-next-evaluation [12: §3.3, Algorithm 1] | AHE 自己实证 fix-prediction precision 33.7%（5× random），但 regression-prediction 精度仅 11.8%（仅 2× random）——agent 大体能命中"我会修好哪些"，**几乎无法预言"我会弄坏哪些"** [12: §4.4.2 Figure 4]。这直接量化了 §4.2.5 中 Triage Agent 自我归因的可信边界 |
+| **Agent Debugger（trajectory 文件系统化）**：把 trajectory 当 navigable file environment（每 message 一个文件），LLM-agent 用通用 shell + scripting 浏览，按 progressive disclosure 输出 per-task + benchmark-level 报告 | 形式上是把 raw trace → 分层证据语料的方法论原语，可作为 KWeaver Triage Agent §4.2.4 Read 模块的"如何让 LLM 读 trace"实现参考 | **这条与 thesis 立场对立**：Agent Debugger 是 LLM-as-judge 路线的具体实现，且 AHE 把它用在**全部 trajectory**（每任务 k=2 traces 全跑），是 thesis"front-line filtering 用轻量信号"明确反对的部署模式。引入须严格限定在 triage 后的小子集 [12: §3.2; 见 contradictions.md] |
+
+**对 KWeaver 决策的净效应**：AHE 的 ablation 数据带来一个不愉快的拷问——其 component-level 实证显示**system prompt 单换入 −2.3 pp（唯一退化），long-term memory 单换入 +5.6 pp，tool 单换入 +3.3 pp**。即"把经验显式落到外部文件"比"把经验编进 system prompt"或"通过 SFT 编进权重"效果更稳定 [12: §4.4.1 Table 3]。这给 §3.3 / §3.6 的 model-side relabeling 路线提出工程对照点：在 KWeaver 飞轮初期（数据少、人工预算紧），把 Triage Agent 的输出落到 BKN / long-term memory 文件可能比落到 SFT 数据更划算——这与 §1.3 "BKN 自演化是 Scaling 组件" 的判断相互印证。
+
+**严格不做**：不把 AHE 的 evolve-loop 直接搬进 KWeaver 飞轮。AHE 的演化对象是 harness（model 不变）；KWeaver 飞轮的演化对象是 BKN + Context 策略 + 可选 model 微调——任务结构不同。AHE 的 32 小时 + 数十亿 token 的成本曲线在 KWeaver 这种长期持续运行的飞轮场景下不可重复支付。
+
 ---
 
 ## 4. 直接服务 KWeaver 当前差距的具体建议
@@ -420,6 +436,7 @@ Triage Agent 自己的输出也需要被评估，否则飞轮的"反哺通道"�
 - [ ] **策略调优有效性**：Context Loader 应用调优参数后的下一轮 trace 表现
 - [ ] **失败归因准确率**：归因报告与人工最终判定的对齐率
 - [ ] **review 队列价值密度**：人工 reviewer 在队列中找到真问题的比例（参考 Signals 的 informativeness rate）
+- [ ] **自我预言的 fix vs regression 不对称性**：每条 patch 建议附带 `predicted_fixes[]` + `risk_tasks[]`（借鉴 [12] AHE change manifest 模式），下一窗口对照实际效果。AHE 实证：跨 9 轮均值 fix-prediction precision 33.7% / recall 51.4%（≈5× random），但 regression-prediction precision 11.8% / recall 11.1%（仅≈2× random）[12: §4.4.2 Figure 4]——即 evolve agent 大体能命中"我会修好哪些"，**几乎无法预言"我会弄坏哪些"**。KWeaver 设计意涵：Triage Agent 的"修复预测"可作为弱信号驱动 patch 自动 merge，但**回归预测必须独立核验**——不能依赖 Triage Agent 自己声明的 risk_tasks 做"安全"判断。这是 §4.4 BKN 自演化"自动 merge 分流策略"的可信边界依据。
 
 #### 4.2.6 评估指标 — 不要打分
 
@@ -521,7 +538,8 @@ Triage Agent 自己的输出也需要被评估，否则飞轮的"反哺通道"�
 每篇论文笔记 §5（批判性阅读）已详述。报告层面归纳：
 - **可复现性**：Signals 检测器实现细节、Agent-as-Judge 模块组合空间、TIDE cycle 阈值选择都不充分公开
 - **测试床狭窄**：τ-bench / DevAI / 5 个 grid puzzle benchmark——KWeaver 业务的实际表现需独立复现
-- **生产成本未量化**：所有论文都说"low cost"，没人给真实运维数字
+- **生产成本未量化**：所有论文都说"low cost"，没人给真实运维数字。AHE 是少数明确给出量级的——一次 10 轮演化 ~32 小时 + 估计 10⁹ 量级 token，但仍未拆"rollout / debug / evolve"三类调用的 token 占比 [12: §4.1, §Limitations]
+- **LLM-driven trajectory 解读未做相对 raw-trace 的消融**：[12] AHE 的 Agent Debugger（LLM-as-judge for harness diagnosis）是 thesis 反对的"front-line LLM-judge"模式，且论文未做"evolve agent 直接读 cleaned raw trace"的消融——无法分清增益是"分层结构化"在起作用还是"又一次 LLM 重新解释"在起作用
 
 ### 6.4 当前阶段不做的事
 
@@ -607,5 +625,6 @@ Triage Agent 自己的输出也需要被评估，否则飞轮的"反哺通道"�
 | v2.1 | — | [09] Trajectory Guard | L1 分诊层"学习型小代理"对照组（待回填） |
 | v2.2 | — | [10] Sentinel / PhantomPolicy | L1 enforcement 侧"声明式 KG 不变量"样板；为"schema 是 silent gating constraint"提供 Coverage 实证（待回填） |
 | v2.3 | 2026-04-30 | [11] Near-Miss | §3.2.1 新增 Near-Miss 信号定义（成功轨迹中的 latent failure 检测），与 [10] Sentinel 形成 in-line/post-hoc 互补；§3.3.1 新增 Near-Miss-driven DPO 对零成本生成路径，作为 thesis 命题 (b) 的最低成本可验证路径；Triage Agent 输入 schema 扩充 `latent_failures` 字段 |
+| v2.4 | 2026-05-01 | [12] AHE | 新增 §3.7 "Off-axis：Harness 自演化方法论（AHE）"——记录三处可借鉴原语（component observability / falsifiable change manifest / Agent Debugger）与各自警惕点；§4.2.5 新增 fix vs regression 自我预言不对称性条目（5× vs 2× random，§4.4.2 实证）作为 BKN 自动 merge 可信边界依据；§6.3 新增 LLM-driven trajectory 解读相对 raw-trace 未消融的局限；contradictions.md 记录 [12] vs [11] "LLM-driven exploration vs deterministic mechanistic oracle" 范式对立 + 提案"横切面 ─ Harness 自演化"分类轴扩展（待人工 review） |
 
-*Report version: v2.3（2026-04-30）。基于 KWeaver 路线图设计稿，全面对齐 Harness Engineering 定位与飞轮中心论。*
+*Report version: v2.4（2026-05-01）。基于 KWeaver 路线图设计稿，全面对齐 Harness Engineering 定位与飞轮中心论。*
