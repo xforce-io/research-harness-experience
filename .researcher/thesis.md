@@ -50,6 +50,19 @@ sampling reduces observability cost by a meaningful factor (e.g. >5×) without
 degrading downstream training data quality. Counter-evidence on any of these
 should force a reframing.
 
+**Methodological constraint on the judgment layer.** Judgment chains should
+drive determinism as deep into the tree as possible. When judgment rules are
+enumerable (e.g. `BKN.PreCondition` → required RO set), mechanistic oracles
+strictly dominate LLM-judge — the reason is not cost, it is that LLM variance
+is itself harmful to production-grade judgment, regardless of mean accuracy.
+Where judgment unavoidably depends on the LLM (genuinely irreducible semantic
+predicates such as memory hallucination or reflection misassessment), the
+LLM must be wrapped in a structured decision tree of narrow yes/no predicates
+with explicit aggregation, thresholds, and abstain conditions; *free-form*
+"is this trajectory good?" prompting is rejected as a judgment form, even
+when it benchmarks well. This is the same principle as L1's lightweight-
+signal discipline, applied one layer deeper — not a new principle.
+
 ## Taste
 
 - **Favor lightweight, deployable signals over LLM-judge approaches** for
@@ -86,6 +99,13 @@ should force a reframing.
   or detector versioning — production blind spots.
 - **Papers that conflate sampling informativeness with judgment accuracy** —
   see thesis section above; this is a category error we will not absorb.
+- **Auto-feedback / auto-fix loops that do not audit their own reliability.**
+  Reporting only end-to-end success deltas without measuring fix-prediction
+  or regression-prediction accuracy of the *feedback itself*. AHE [12] reports
+  both (fix ≈ 5× random, regression ≈ 2× random); AgentDebug [13] reports
+  neither. End-to-end gains in this regime cannot distinguish "the feedback
+  was right" from "the base model recovered despite noisy feedback" — and
+  the latter is far more common than authors imply.
 
 ## Examples
 
