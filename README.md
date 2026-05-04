@@ -39,3 +39,4 @@
 | 11 | Near-Miss: Latent Policy Failure Detection in Agentic Workflows | 评估范式 / 筛选分诊 | P1 | ✅ 已读 |
 | 12 | Agentic Harness Engineering: Observability-Driven Automatic Evolution | off-axis（Harness 自演化）| P2 | ✅ 已读 |
 | 13 | Where LLM Agents Fail and How They Can Learn From Failures (AgentDebug) | off-axis（Root-cause LLM-judge）| P2 | ✅ 已读 |
+| 14 | Autodata: an automatic data scientist to create high-quality data | off-axis（Training-time auto-data + harness 自演化）| P2 | ✅ 已读 |

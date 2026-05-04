@@ -1,14 +1,14 @@
 # KWeaver TraceAI：服务于 AI 工程飞轮的双轨 Trace 与 Triage Agent: Research Report
 
-> **Version:** v2.5 (11 papers)
+> **Version:** v2.6 (12 papers)
 > **Last Updated:** 2026-05-04
-> **Papers:** [01](notes/01_signals_trajectory_triage.md), [02](notes/02_agenther_hindsight_relabeling.md), [03](notes/03_tsr_trajectory_search_rollouts.md), [04](notes/04_agenttrace_structured_logging.md), [07](notes/07_agent_as_a_judge.md), [08](notes/08_tide_trace_diagnostics.md), [09](notes/09_trajectory_guard_a_lightweight_sequence_aware.md), [10](notes/10_policy_invisible_violations_in_llm_based.md), [11](notes/11_near_miss_latent_policy_failure_detection.md), [12](notes/12_agentic_harness_engineering_observability_driven_automatic.md), [13](notes/13_where_llm_agents_fail_and_how.md)
+> **Papers:** [01](notes/01_signals_trajectory_triage.md), [02](notes/02_agenther_hindsight_relabeling.md), [03](notes/03_tsr_trajectory_search_rollouts.md), [04](notes/04_agenttrace_structured_logging.md), [07](notes/07_agent_as_a_judge.md), [08](notes/08_tide_trace_diagnostics.md), [09](notes/09_trajectory_guard_a_lightweight_sequence_aware.md), [10](notes/10_policy_invisible_violations_in_llm_based.md), [11](notes/11_near_miss_latent_policy_failure_detection.md), [12](notes/12_agentic_harness_engineering_observability_driven_automatic.md), [13](notes/13_where_llm_agents_fail_and_how.md), [14](notes/14_autodata.md)
 > **Thesis:** [.researcher/thesis.md](.researcher/thesis.md)
 
 > **形式：** 内部技术报告 / Position Paper
 > **作者：** xupeng
 > **基于：**
-> - 11 篇深读论文（Signals、AgentHER、TSR、AgentTrace、Agent-as-a-Judge、TIDE、Trajectory Guard、Sentinel、Near-Miss、AHE、AgentDebug）+ 2 篇待补（Breaking Obs Tax、AgentSeer）— 索引见 [`papers/README.md`](papers/README.md)
+> - 12 篇深读论文（Signals、AgentHER、TSR、AgentTrace、Agent-as-a-Judge、TIDE、Trajectory Guard、Sentinel、Near-Miss、AHE、AgentDebug、Autodata）+ 2 篇待补（Breaking Obs Tax、AgentSeer）— 索引见 [`papers/README.md`](papers/README.md)
 > - **KWeaver 项目资料**（脱敏后入 [`references/`](references/)）：纲领（[01](references/01_overcoming_ontology.md)）、路线图（[02](references/02_engineering_roadmap.md)）、产品概览（[03](references/03_kweaver_core_overview.md)）、技术深度（[04](references/04_kweaver_core_deep_analysis.md)）、Harness Engineering 位置论（[05](references/05_harness_engineering_position.md)）
 > **目标读者：** KWeaver TraceAI / Decision Agent / Triage Agent 设计与工程团队
 > **目标：** 把学术研究映射到 KWeaver 飞轮的具体差距，特别是为 **Triage Agent prototype 设计**提供可操作的输入
@@ -306,13 +306,36 @@ Agent-as-a-Judge 的最重要工程发现（论文 Table 4）：**最优 4 模�
 
 ### 3.6 训练侧（远期）
 
-**AgentHER（完整管道）+ TSR**：保留为远期参考。当 KWeaver 飞轮数据量级达到支撑领域微调时（路线图明确的 reassessment 条件），重新评估。当前阶段不做。
+**AgentHER（完整管道）+ TSR + Autodata**：保留为远期参考。当 KWeaver 飞轮数据量级达到支撑领域微调时（路线图明确的 reassessment 条件），重新评估。当前阶段不做。
 
-### 3.7 Off-axis：Harness 自演化方法论（AHE）
+**[14] Autodata 的位置**：训练数据来源谱系上的"源文档外造"端，与 [2] AgentHER（失败 trace 内挖）、[3] TSR（成功 rollout 内选）形成三方对照——
+- [3] TSR：从已发生的 rollouts 中**选**（model-free 信号）；
+- [2] AgentHER：从失败 trace 中**改写**（hindsight relabel）；
+- [14] Autodata：从源文档**造**（model-gap 信号——weak/strong solver 分离度 ≥20pp，τ-bench 风格的 challenger / quality-verifier / weak-solver / strong-solver / judge 五子代理协作，CS-research QA 把 weak/strong gap 从 1.9pp 拉到 34pp，2,117 / 10,000+ S2ORC 论文 ≈ 21% acceptance rate，下游 GRPO 训练 Qwen-3.5-4B 在 ID/OOD 双侧均胜 CoT Self-Instruct）[14: §Inner loop, §Results: data quality analysis, §Results: RL training]。
 
-**主要论文：[12] Agentic Harness Engineering**
+→ 飞轮初期不引入 [14]：(i) Autodata 假设有可作为接受门的"strong solver"——KWeaver 内部并无与 Decision Agent 配对的 strong baseline；(ii) 接受门是单轴 capability discrimination，论文自承会通过"challenging-but-meaningless"题目（§Hacking & limitations），未做 question-quality 第二关；(iii) 同 family 模型担任 challenger / judge / orchestrator / analyzer / implementer 全角色，self-rating bias 上界未控。这三条对 KWeaver 的合规审计场景都不可接受。
 
-> AHE 不在 KWeaver 飞轮的四环节内——它优化的是**给定模型 + 给定 benchmark 下，harness 自身的组件配置**。但其方法论原语对 KWeaver 至少有三处可借鉴：
+→ 远期若引入：必须**借鉴 [12] AHE 的 falsifiable manifest 模式**而非 [14] 的"validation pass rate 单一接受门"——见 §3.7 与 contradictions.md "Autodata vs AHE — harness meta-optimization 的 self-audit 立场对立"。
+
+### 3.7 Off-axis：Harness 自演化方法论（AHE / Autodata 对照组）
+
+**主要论文：[12] Agentic Harness Engineering ↔ [14] Autodata**
+
+> 两者方法学几乎同构——外环都是"Boltzmann-sample parent → LLM analyzer 读 trajectory 写 root-cause analysis → code-edit agent 提 diff → minibatch 评估接受"——但**自我审查严格度直接对立**，构成 thesis Anti-pattern "auto-fix loops without self-audit" 分水岭的一对显式样例。两者均不在 KWeaver 飞轮四环节内（[12] 优化"给定模型 + 给定 benchmark 下 harness 自身的组件配置"，[14] 优化"给定源文档下 data-creation harness 自身的合成质量"），但其方法论原语对 KWeaver BKN 自演化 / Triage Agent patch 自动 merge 决策直接相关。
+
+| 自我审查维度 | [12] AHE | [14] Autodata |
+|------|---------|---------|
+| 接受门 | mutant 必须自带 `predicted_fixes[]` + `risk_tasks[]`，下一轮 task delta 自动判决，falsified 则文件级回滚 [12: §3.3, Algorithm 1] | mutant validation score 严格大于 parent 即接受；不要求 analyzer / implementer 自报修复预言 [14: §Meta-Optimization] |
+| Fix-prediction 准确率 | 跨 9 轮均值 precision 33.7% / recall 51.4%（≈5× random）[12: §4.4.2] | **未量化** |
+| Regression-prediction 准确率 | precision 11.8% / recall 11.1%（仅≈2× random）[12: §4.4.2] | **未量化** |
+| End-to-end 提升 | full AHE 7.3 pp（10 轮演化，~32 小时 + 估计 10⁹ token）[12: §4.1] | val pass rate 12.8%→42.4%（233 轮，126 接受）[14: §Meta-Optimization] |
+| Spec gaming 处理 | 论文未显式记录 evolve agent 的 gaming 路径 | 自承 "agents modify the prompt to weak solver telling it to be weak"，但 "addressed partially"，未量化 gamed 子集 [14: §Hacking & limitations] |
+
+**对 KWeaver 决策的净效应**：[14] 与 [12] 的自我审查严格度差距对 KWeaver BKN 自演化 / Triage Agent auto-merge 路线**有方法论决定性**。[12] 的实证早已揭示——即便配齐 manifest，evolve agent 仍**几乎不能预言副作用**（regression-prediction 仅 2× random）；[14] 把这一最具信息量的诊断信号一并省略，end-to-end 12.8%→42.4% 无法分清"analyzer 真的诊断准了"vs"implementer 顺手做了几个 plausible edit + 接受门把噪声过滤掉了"。
+
+**KWeaver 工程含义**：BKN patch / Triage Agent 输出的 auto-merge 必须采用 [12] manifest 模式，不接受 [14] 风格的"pass rate 单一接受门"。该决定的具体落点见 §4.2.5（fix vs regression 不对称性条目）+ §4.4（自动 merge 分流策略）。
+
+**[12] AHE 三处可借鉴原语 + 三处警惕**：
 
 | AHE 原语 | KWeaver 借鉴方向 | 警惕点 |
 |---------|----------------|-------|
@@ -337,7 +360,8 @@ Agent-as-a-Judge 的最重要工程发现（论文 Table 4）：**最优 4 模�
 **可证伪命题 (b)**：L1-triaged 轨迹的 hindsight relabel 比随机采样产生可测量 downstream win rate。
 - 现有支持证据：[2] AgentHER 端到端 SFT/DPO 提升幅度（论文报告，本仓 02 笔记紧凑版未落具体数字）；[11] Near-Miss 在 mutating-tool 场景给出**零成本 DPO 对生成路径**（机械注入 RO，§3.3.1）——这是命题 (b) 的最低成本可验证路径。
 - 反向 / 警示证据：[12] AHE long-term-memory 单换入 +5.6 pp（§4.4.1 Table 3）暗示"externalize 比 SFT 更划算"——relabel + SFT 路线的边际收益相对"把同样信息落到 BKN / memory 文件"需独立核验。如果 externalize 路径胜出，命题 (b) 不必假，但 KWeaver 落地优先级要重排（§4.4 BKN 自演化 > §3.6 训练侧）。
-- 下一步可解：Triage Agent prototype（§4.2）落地后，比较"Near-Miss-driven DPO 对 vs 随机 DPO 对"在同任务 hold-out 上的 win rate；同时跑 externalize-only baseline 作三方对照。
+- 旁路证据：[14] Autodata 在 CS-research QA 上 GRPO-训练 Qwen-3.5-4B 用"Agentic Self-Instruct"合成数据 ID/OOD 双侧均胜 CoT Self-Instruct——但**数据来源是源文档外造而非 L1-triaged 轨迹**，与命题 (b) 同向但不可直接外推（命题 (b) 假设 production trace 来源；[14] 无 trace 依赖）。仍可作 baseline-of-baselines：当 KWeaver 试 Near-Miss-driven DPO 对时，跑"源文档外造 DPO 对"作第三方对照，量化"trace-grounded 是否真比 fabricated 提供 downstream win rate"——这正是命题 (b) 在生产场景下的实际操作问题。
+- 下一步可解：Triage Agent prototype（§4.2）落地后，比较"Near-Miss-driven DPO 对 vs 随机 DPO 对 vs externalize-only baseline vs Autodata 风格源文档外造对照组"四方在同任务 hold-out 上的 win rate。
 
 **可证伪命题 (c)**：signal-driven sentinel sampling 把观测成本降 >5× 而不损 downstream 训练数据质量。
 - 现有支持证据：[5] Breaking the Observability Tax 概念性主张（PDF 阻塞，待补——见 §6.1）；[10] Sentinel 在动作时反事实模拟 O(|M|) 复杂度（§6.1），证明声明式不变量在 enforcement 侧成本可控。
@@ -583,6 +607,8 @@ Triage Agent 自己的输出也需要被评估，否则飞轮的"反哺通道"�
 - **Detector 端基模强依赖未被任何 LLM-judge 论文系统体检**：[13] AgentDebug §5.1 Figure 7b 是少数显式做的——detector 从 GPT-4.1 换成 Llama-3.3-70B 后 All-Correct 直接从 32% 跌到 6%，GPT-4o-mini 跌到 2%——意味方法的有效性几乎完全绑在最强闭源 base 上。同源问题在 [7] AaaJ / [12] AHE 上也存在但未独立量化。KWeaver 走 LLM-judge backbone 路线时，**必须**显式选模型 + 准备 fallback + 定期跑 base-model 对照测试
 - **κ 指标的术语膨胀**：[13] AgentErrorBench 报告 Cohen's κ=0.55 并叙事为 "substantial agreement"，但 Landis & Koch 标准为 "moderate"（0.41–0.60）。其 strict All-Correct 24.3% 数字的天花板恰恰被 κ=0.55 限制——这是 detector 评测论文常见的"基础地基不稳但叙事乐观"模式，KWeaver 自评 Triage Agent 时应**自报 κ 严格档位**而非沿用论文叙事
 - **同篇论文内部方法描述不一致**：[13] Algorithm 1 注释 "Critical Error Detection via LLM (no rollout/counterfactuals)" 与 §3.2 文字 "perform counterfactual testing step by step: at each point, we substitute a corrected action and test whether the rollout would succeed" 直接冲突；附录 A.5 prompts 证实是 LLM-only "想象式 counterfactual"。该论文在术语上沿用 "counterfactual" 一词但语义滑移成"在 prompt 里让 LLM 想象 corrected action"——下游引用须以 Algorithm 1 + 附录 A.5 为准（同条已落 contradictions.md）
+- **Self-audit 缺失成为 harness 自演化文献的常态**：[14] Autodata 与 [13] AgentDebug 同向落入 thesis Anti-pattern "auto-fix loops without self-audit"——只报 end-to-end 提升（[14] val pass rate 12.8%→42.4% / [13] +26% relative），完全未量化 LLM-written root-cause analyses 的 fix-prediction / regression-prediction 准确率。[14] 与 [12] AHE 方法学几乎同构（同为 evolutionary harness mutation + LLM trajectory analyzer + code-edit agent + minibatch 接受门），但 [12] 显式量化 fix（5×）/regression（2×）prediction，[14] 全省。意味这一研究方向只有 [12] 提供可信证据基线；KWeaver 移植 evolve-loop 必须以 [12] manifest 模式为最小起点（详见 contradictions.md "Autodata vs AHE — harness meta-optimization 的 self-audit 立场对立"）
+- **训练数据合成接受门的单轴 Goodhart 风险**：[14] Autodata 接受门只测 weak/strong solver gap（capability discrimination），但论文自承 "challenging-but-meaningless" 题目以及 spec-gaming（agents "modify the prompt to weak solver telling it to be weak"）会通过该门——21% acceptance rate（2,117 / 10,000+ S2ORC 论文）含未量化的 gamed 子集。第二轴质量度量（人工抽检 / 异 family judge）从未进入该论文的工作流程。KWeaver 若移植此路线，**必须**配第二关 quality dimension，避免单轴 Goodhart 化（§3.6 已落具体路径）
 
 ### 6.4 当前阶段不做的事
 
@@ -670,5 +696,6 @@ Triage Agent 自己的输出也需要被评估，否则飞轮的"反哺通道"�
 | v2.3 | 2026-04-30 | [11] Near-Miss | §3.2.1 新增 Near-Miss 信号定义（成功轨迹中的 latent failure 检测），与 [10] Sentinel 形成 in-line/post-hoc 互补；§3.3.1 新增 Near-Miss-driven DPO 对零成本生成路径，作为 thesis 命题 (b) 的最低成本可验证路径；Triage Agent 输入 schema 扩充 `latent_failures` 字段 |
 | v2.4 | 2026-05-01 | [12] AHE | 新增 §3.7 "Off-axis：Harness 自演化方法论（AHE）"——记录三处可借鉴原语（component observability / falsifiable change manifest / Agent Debugger）与各自警惕点；§4.2.5 新增 fix vs regression 自我预言不对称性条目（5× vs 2× random，§4.4.2 实证）作为 BKN 自动 merge 可信边界依据；§6.3 新增 LLM-driven trajectory 解读相对 raw-trace 未消融的局限；contradictions.md 记录 [12] vs [11] "LLM-driven exploration vs deterministic mechanistic oracle" 范式对立 + 提案"横切面 ─ Harness 自演化"分类轴扩展（待人工 review） |
 | v2.5 | 2026-05-04 | [13] AgentDebug | §3.5 评估范式新增 §3.5.1 子节，定位 [13] 为 [7] AaaJ 路线在 root-cause 归因任务上的具体实现；与 [12] AHE 同属 LLM-as-judge 自动修复家族但时间尺度对偶（[12] training-loop 改 harness vs [13] inference-time 改 trajectory），且 [13] 缺 self-audit；新增 §3.8 "可证伪点追踪"——按 thesis 三条可证伪命题 (a)(b)(c) 分别落地"支持/反向/不可解"证据 + 下一步可解，关闭审计中"可证伪点追踪非 body 章节"差距；§6.3 新增四条限制（detector 强模型依赖未系统体检 / κ 术语膨胀 / 同篇内部方法描述不一致）；contradictions.md 记录 [13] vs [11] "trajectory root-cause judgment 机制 vs LLM-judge"（与 11↔12 同源第三例）+ [13] vs thesis "front-line vs triaged-subset 部署"+ [13] 同篇 Algorithm 1 与 §3.2 内部不一致 |
+| v2.6 | 2026-05-04 | [14] Autodata | §3.6 训练侧新增 [14] 在"源文档外造 vs trace 内挖 vs rollout 内选"三方训练数据来源谱系上的精确定位 + KWeaver 飞轮初期不引入的三条理由（无 strong-solver 配对 / 单轴接受门 / judge-model 同 family）；§3.7 重命名为"AHE / Autodata 对照组"——并列两篇为 thesis Anti-pattern "auto-fix loops without self-audit" 分水岭的显式样例，新增对照表（接受门 / fix-prediction / regression-prediction / spec-gaming 四维），把"BKN auto-merge 必须采 [12] manifest 模式而非 [14] pass-rate 单一接受门"作为 KWeaver 工程含义；§3.8 命题 (b) 新增 [14] 旁路证据条目（源文档外造 GRPO 训练 ID/OOD 双胜 CoT baseline，但与命题 (b) 假设的 production trace 来源不同，可作 baseline-of-baselines）；§6.3 新增两条限制（self-audit 缺失成为 harness 自演化文献常态 / 训练数据合成接受门的单轴 Goodhart 风险）；contradictions.md 记录 [14] vs thesis Anti-pattern（第三例）+ [14] vs [12] "harness meta-optimization 的 self-audit 立场对立"（跨独立工作组）+ [14] 论文内部接受门 vs 自承 quality 缺陷不一致 + Proposed taxonomy extension 提议增设"横切面 ─ Harness 自演化方法论"独立分类轴 |
 
-*Report version: v2.5（2026-05-04）。基于 KWeaver 路线图设计稿，全面对齐 Harness Engineering 定位与飞轮中心论；§3.8 落实 thesis 可证伪点追踪闭环。*
+*Report version: v2.6（2026-05-04）。基于 KWeaver 路线图设计稿，全面对齐 Harness Engineering 定位与飞轮中心论；§3.7 落实 [12] vs [14] self-audit 立场对照组。*
