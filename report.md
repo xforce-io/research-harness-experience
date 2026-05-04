@@ -1,14 +1,14 @@
 # KWeaver TraceAI：服务于 AI 工程飞轮的双轨 Trace 与 Triage Agent: Research Report
 
-> **Version:** v2.4 (10 papers)
-> **Last Updated:** 2026-05-01
-> **Papers:** [01](notes/01_signals_trajectory_triage.md), [02](notes/02_agenther_hindsight_relabeling.md), [03](notes/03_tsr_trajectory_search_rollouts.md), [04](notes/04_agenttrace_structured_logging.md), [07](notes/07_agent_as_a_judge.md), [08](notes/08_tide_trace_diagnostics.md), [09](notes/09_trajectory_guard_a_lightweight_sequence_aware.md), [10](notes/10_policy_invisible_violations_in_llm_based.md), [11](notes/11_near_miss_latent_policy_failure_detection.md), [12](notes/12_agentic_harness_engineering_observability_driven_automatic.md)
+> **Version:** v2.5 (11 papers)
+> **Last Updated:** 2026-05-04
+> **Papers:** [01](notes/01_signals_trajectory_triage.md), [02](notes/02_agenther_hindsight_relabeling.md), [03](notes/03_tsr_trajectory_search_rollouts.md), [04](notes/04_agenttrace_structured_logging.md), [07](notes/07_agent_as_a_judge.md), [08](notes/08_tide_trace_diagnostics.md), [09](notes/09_trajectory_guard_a_lightweight_sequence_aware.md), [10](notes/10_policy_invisible_violations_in_llm_based.md), [11](notes/11_near_miss_latent_policy_failure_detection.md), [12](notes/12_agentic_harness_engineering_observability_driven_automatic.md), [13](notes/13_where_llm_agents_fail_and_how.md)
 > **Thesis:** [.researcher/thesis.md](.researcher/thesis.md)
 
 > **形式：** 内部技术报告 / Position Paper
 > **作者：** xupeng
 > **基于：**
-> - 10 篇深读论文（Signals、AgentHER、TSR、AgentTrace、Agent-as-a-Judge、TIDE、Trajectory Guard、Sentinel、Near-Miss、AHE）+ 2 篇待补（Breaking Obs Tax、AgentSeer）— 索引见 [`papers/README.md`](papers/README.md)
+> - 11 篇深读论文（Signals、AgentHER、TSR、AgentTrace、Agent-as-a-Judge、TIDE、Trajectory Guard、Sentinel、Near-Miss、AHE、AgentDebug）+ 2 篇待补（Breaking Obs Tax、AgentSeer）— 索引见 [`papers/README.md`](papers/README.md)
 > - **KWeaver 项目资料**（脱敏后入 [`references/`](references/)）：纲领（[01](references/01_overcoming_ontology.md)）、路线图（[02](references/02_engineering_roadmap.md)）、产品概览（[03](references/03_kweaver_core_overview.md)）、技术深度（[04](references/04_kweaver_core_deep_analysis.md)）、Harness Engineering 位置论（[05](references/05_harness_engineering_position.md)）
 > **目标读者：** KWeaver TraceAI / Decision Agent / Triage Agent 设计与工程团队
 > **目标：** 把学术研究映射到 KWeaver 飞轮的具体差距，特别是为 **Triage Agent prototype 设计**提供可操作的输入
@@ -280,11 +280,29 @@ Near-Miss 标注                        机械生成的偏好对（无需 LLM �
 
 ### 3.5 评估范式（横切）
 
-**主要论文：Agent-as-a-Judge（4 模块发现）+ TIDE（已纳入 §3.3）**
+**主要论文：Agent-as-a-Judge（4 模块发现）+ TIDE（已纳入 §3.3）+ AgentDebug（root-cause 归因 LLM-judge 实例）**
 
 Agent-as-a-Judge 的最重要工程发现（论文 Table 4）：**最优 4 模块 = Graph + Locate + Read + Ask**；Memory + Planning 模块对评估**有害**。
 
 **对 Triage Agent 内部架构的直接启示**——见 §4.2。
+
+#### 3.5.1 AgentDebug：root-cause 归因的 LLM-judge 路线（off-axis）
+
+> [13] AgentDebug 是 [7] AaaJ 路线在 root-cause 归因任务上的具体实现：5 模块 × 17 类细粒度 error taxonomy + AgentErrorBench（200 标注轨迹，Cohen's κ=0.55——论文叙事 "substantial" 实为 Landis & Koch "moderate"）+ 三阶段 LLM-cascade（fine-grained detector → critical-error finder → re-rollout 循环 ≤5 次）。
+
+**为什么放在评估范式而不在 §3.7 AHE off-axis 之外**：[13] 与 [12] AHE 同属"LLM-as-judge 自动修复"家族，但时间尺度对偶——[12] 改 harness 文件持久化（training-loop-time），[13] 改单 trajectory re-rollout 临时化（inference-time）。两者方法论同向，**自我审查严格度差距明显**：[12] 显式量化 evolve agent 的 fix/regression 预测准确率（5×/2× random，§4.4.2）作为 self-audit；[13] 完全没做这种 self-audit——corrective_guidance 是否真 actionable / re-rollout 失败到底是因为 feedback 错还是 base model 弱，论文从未拆解。意味着 [13] 的"+26% relative"包含大量盲试成分。
+
+**对 KWeaver 的三处可借鉴 + 三处警惕**：
+
+| 借鉴 | 内容 | 警惕 |
+|------|------|------|
+| **5 模块 × 17 类 taxonomy 作对照词表** | Memory（hallucination / over-simplification / retrieval failure）/ Reflection（progress misassessment / outcome misinterpretation / causal misattribution / hallucination）/ Planning（constraint ignorance / impossible action / inefficient planning / planning–action disconnect）/ Action（format / parameter / misalignment / invalid）/ System（step limit / tool execution / LLM limit / environment）。可与 [2] AgentHER 6 类、Signals 7 类、AHE 7 组件并列作 KWeaver Triage Agent 失败标签词表的对照来源 [13: §2.1] | 17 类边界模糊（论文自承 retrieval failure vs constraint ignorance 需"多轮校准"区分），κ=0.55 即标注者一致性天花板；KWeaver 取词表时**取模块切分而非细类标签**更稳 |
+| **强制四模块 tag 化的 schema 收益** | Rollout strategy ablation（Figure 7c）：Modular 0.38 vs ReAct 0.26 = +12 pp 成功率，且这部分增益**不需要任何 detector 介入**就能拿到。直接坐实 thesis"L0 schema 是 silent gating constraint"——schema 缺失直接拿走 31% 相对增益 [13: §5.1] | KWeaver Decision Agent 已强制结构化输出（plan / reflection / thought 字段建议见 §3.1），与 [13] 该结论同向 |
+| **Memory + Reflection 占根因 ~38% 的分布** | §2.2 Figure 3：失败多在 step 6–15 中段聚集，Memory + Reflection 是最主要的根因来源 [13: §2.2] | 跨 benchmark family 不可迁移：[13] 测试床（ALFWorld / WebShop / GAIA）强依赖 long-context 记忆与状态跟踪；KWeaver 关心的 DPH 编排（弱用户对话 + 强 tool/API 链）场景下，Memory 错误频度可能远低，Action / System 错误占比应远高 |
+
+**严格不做**：不把 AgentDebug 三阶段 cascade 直接搬进 KWeaver Triage Agent。原因——单条 ALFWorld trace（中位 ~10–15 步）的 detection 阶段就要 4 模块 × 步数 ≈ 40–60 次 GPT-4.1 调用 + critical finder + 最多 5 次 re-rollout 的 detector 再调用；论文从未拆 detection / critical-finder / re-rollout 三段 token 占比，"matched by total token usage" 的"匹配"无从核验。在 thesis"front-line filtering 用轻量信号"判断方向上，[13] 把 LLM-judging 用在**全部失败轨迹的全部步全部模块**——thesis 明确反对的部署模式。如借鉴，**严格限定在 Signals/Near-Miss/Sentinel 已 triage 后的小子集**作为 §4.2.4 Read 模块的 backbone（详见 contradictions.md "front-line vs triaged-subset"）。
+
+**Detector 强模型依赖警示**：§5.1 Figure 7b——detector 从 GPT-4.1 换成 Llama-3.3-70B，All-Correct 直接从 32% 跌到 6%；GPT-4o-mini 跌到 2%。意味方法的有效性几乎完全绑在最强闭源 base 上。KWeaver 设计若走 LLM-judge backbone 路线，必须**显式选模型 + 准备 fallback**，并定期跑 detector 端的 base-model 对照测试（这是 [13] 自己未做的可移植性检查）。
 
 ### 3.6 训练侧（远期）
 
@@ -305,6 +323,28 @@ Agent-as-a-Judge 的最重要工程发现（论文 Table 4）：**最优 4 模�
 **对 KWeaver 决策的净效应**：AHE 的 ablation 数据带来一个不愉快的拷问——其 component-level 实证显示**system prompt 单换入 −2.3 pp（唯一退化），long-term memory 单换入 +5.6 pp，tool 单换入 +3.3 pp**。即"把经验显式落到外部文件"比"把经验编进 system prompt"或"通过 SFT 编进权重"效果更稳定 [12: §4.4.1 Table 3]。这给 §3.3 / §3.6 的 model-side relabeling 路线提出工程对照点：在 KWeaver 飞轮初期（数据少、人工预算紧），把 Triage Agent 的输出落到 BKN / long-term memory 文件可能比落到 SFT 数据更划算——这与 §1.3 "BKN 自演化是 Scaling 组件" 的判断相互印证。
 
 **严格不做**：不把 AHE 的 evolve-loop 直接搬进 KWeaver 飞轮。AHE 的演化对象是 harness（model 不变）；KWeaver 飞轮的演化对象是 BKN + Context 策略 + 可选 model 微调——任务结构不同。AHE 的 32 小时 + 数十亿 token 的成本曲线在 KWeaver 这种长期持续运行的飞轮场景下不可重复支付。
+
+### 3.8 可证伪点追踪（Falsifiability tracking）
+
+> 本节追踪 thesis "Working thesis" 中三条显式可证伪命题在当前已读语料下的证据状况。每条命题随飞轮闭环持续可验证；新论文进入时按"支持 / 反向 / 不可解"分类，落实"counter-evidence on any of these should force a reframing"的 thesis 自约束。
+
+**可证伪命题 (a)**：lightweight signals 在真实非 τ-bench 语料上达到 >70% informativeness。
+- 现有支持证据：[1] Signals 在 τ-bench 上 informativeness 82%（vs 随机 54%）——但**仍是 τ-bench**，命题严格意义上未被验证。
+- 间接支持：[10] Sentinel 在 ToolEmu / OAgent 上 acc 0.93 / F1 0.93（声明式 KG 不变量，§6.1）；[11] Near-Miss 在 τ²-Airlines 含 MTC 子集 8.6%–17.3% latent failure 检出率，code-gen 路径 P=R=1.00。两条都属"轻量、规则化、轨迹级判定"家族但测的是判定准确性而非采样信息量，相关但不可直接折算。
+- 反向 / 警示证据：[13] AgentDebug 在 ALFWorld/WebShop/GAIA 上 LLM-judge detector 路线 All-Correct 24.3%（GPT-4.1）/2-6%（小模型），与 informativeness 不可比但提示"任何 detector 在跨基准上数字会显著下滑"——KWeaver 业务语料独立复现前不能假设 82% 数字可移植。
+- 下一步可解：在 KWeaver 现有 trace 池抽样 100 条做 §4.2.7 实验，测 Signals 检测器与 KWeaver 业务专家标注的 informativeness 一致率。
+
+**可证伪命题 (b)**：L1-triaged 轨迹的 hindsight relabel 比随机采样产生可测量 downstream win rate。
+- 现有支持证据：[2] AgentHER 端到端 SFT/DPO 提升幅度（论文报告，本仓 02 笔记紧凑版未落具体数字）；[11] Near-Miss 在 mutating-tool 场景给出**零成本 DPO 对生成路径**（机械注入 RO，§3.3.1）——这是命题 (b) 的最低成本可验证路径。
+- 反向 / 警示证据：[12] AHE long-term-memory 单换入 +5.6 pp（§4.4.1 Table 3）暗示"externalize 比 SFT 更划算"——relabel + SFT 路线的边际收益相对"把同样信息落到 BKN / memory 文件"需独立核验。如果 externalize 路径胜出，命题 (b) 不必假，但 KWeaver 落地优先级要重排（§4.4 BKN 自演化 > §3.6 训练侧）。
+- 下一步可解：Triage Agent prototype（§4.2）落地后，比较"Near-Miss-driven DPO 对 vs 随机 DPO 对"在同任务 hold-out 上的 win rate；同时跑 externalize-only baseline 作三方对照。
+
+**可证伪命题 (c)**：signal-driven sentinel sampling 把观测成本降 >5× 而不损 downstream 训练数据质量。
+- 现有支持证据：[5] Breaking the Observability Tax 概念性主张（PDF 阻塞，待补——见 §6.1）；[10] Sentinel 在动作时反事实模拟 O(|M|) 复杂度（§6.1），证明声明式不变量在 enforcement 侧成本可控。
+- 反向 / 警示证据：[13] AgentDebug 走相反方向（每条失败 trace 全 detection，单条 ALFWorld trace ~40–60 次 GPT-4.1 调用），代表"无成本约束 / 全量 LLM-judge"对照组——其 +26% relative 收益的成本未拆，无法构成命题 (c) 的反例但是其规模对照。
+- 下一步可解：补 [5] PDF 后落地分级采样实验（Level 0 元数据 / Level 1 完整 payload / Level 2 完整 5-surface），在 KWeaver trace 池上量化 cost vs 下游 Triage Agent 输出质量曲线。
+
+**追踪规则**：每篇新论文进入 notes/ 时，必须在本节相应命题下追加一行（"支持 / 反向 / 不可解"标签 + 简短理由 + note 编号）。如某条命题积累 ≥3 条独立反向证据，触发 thesis reframing 提议（落到 contradictions.md 而非本节）。
 
 ---
 
@@ -540,6 +580,9 @@ Triage Agent 自己的输出也需要被评估，否则飞轮的"反哺通道"�
 - **测试床狭窄**：τ-bench / DevAI / 5 个 grid puzzle benchmark——KWeaver 业务的实际表现需独立复现
 - **生产成本未量化**：所有论文都说"low cost"，没人给真实运维数字。AHE 是少数明确给出量级的——一次 10 轮演化 ~32 小时 + 估计 10⁹ 量级 token，但仍未拆"rollout / debug / evolve"三类调用的 token 占比 [12: §4.1, §Limitations]
 - **LLM-driven trajectory 解读未做相对 raw-trace 的消融**：[12] AHE 的 Agent Debugger（LLM-as-judge for harness diagnosis）是 thesis 反对的"front-line LLM-judge"模式，且论文未做"evolve agent 直接读 cleaned raw trace"的消融——无法分清增益是"分层结构化"在起作用还是"又一次 LLM 重新解释"在起作用
+- **Detector 端基模强依赖未被任何 LLM-judge 论文系统体检**：[13] AgentDebug §5.1 Figure 7b 是少数显式做的——detector 从 GPT-4.1 换成 Llama-3.3-70B 后 All-Correct 直接从 32% 跌到 6%，GPT-4o-mini 跌到 2%——意味方法的有效性几乎完全绑在最强闭源 base 上。同源问题在 [7] AaaJ / [12] AHE 上也存在但未独立量化。KWeaver 走 LLM-judge backbone 路线时，**必须**显式选模型 + 准备 fallback + 定期跑 base-model 对照测试
+- **κ 指标的术语膨胀**：[13] AgentErrorBench 报告 Cohen's κ=0.55 并叙事为 "substantial agreement"，但 Landis & Koch 标准为 "moderate"（0.41–0.60）。其 strict All-Correct 24.3% 数字的天花板恰恰被 κ=0.55 限制——这是 detector 评测论文常见的"基础地基不稳但叙事乐观"模式，KWeaver 自评 Triage Agent 时应**自报 κ 严格档位**而非沿用论文叙事
+- **同篇论文内部方法描述不一致**：[13] Algorithm 1 注释 "Critical Error Detection via LLM (no rollout/counterfactuals)" 与 §3.2 文字 "perform counterfactual testing step by step: at each point, we substitute a corrected action and test whether the rollout would succeed" 直接冲突；附录 A.5 prompts 证实是 LLM-only "想象式 counterfactual"。该论文在术语上沿用 "counterfactual" 一词但语义滑移成"在 prompt 里让 LLM 想象 corrected action"——下游引用须以 Algorithm 1 + 附录 A.5 为准（同条已落 contradictions.md）
 
 ### 6.4 当前阶段不做的事
 
@@ -626,5 +669,6 @@ Triage Agent 自己的输出也需要被评估，否则飞轮的"反哺通道"�
 | v2.2 | — | [10] Sentinel / PhantomPolicy | L1 enforcement 侧"声明式 KG 不变量"样板；为"schema 是 silent gating constraint"提供 Coverage 实证（待回填） |
 | v2.3 | 2026-04-30 | [11] Near-Miss | §3.2.1 新增 Near-Miss 信号定义（成功轨迹中的 latent failure 检测），与 [10] Sentinel 形成 in-line/post-hoc 互补；§3.3.1 新增 Near-Miss-driven DPO 对零成本生成路径，作为 thesis 命题 (b) 的最低成本可验证路径；Triage Agent 输入 schema 扩充 `latent_failures` 字段 |
 | v2.4 | 2026-05-01 | [12] AHE | 新增 §3.7 "Off-axis：Harness 自演化方法论（AHE）"——记录三处可借鉴原语（component observability / falsifiable change manifest / Agent Debugger）与各自警惕点；§4.2.5 新增 fix vs regression 自我预言不对称性条目（5× vs 2× random，§4.4.2 实证）作为 BKN 自动 merge 可信边界依据；§6.3 新增 LLM-driven trajectory 解读相对 raw-trace 未消融的局限；contradictions.md 记录 [12] vs [11] "LLM-driven exploration vs deterministic mechanistic oracle" 范式对立 + 提案"横切面 ─ Harness 自演化"分类轴扩展（待人工 review） |
+| v2.5 | 2026-05-04 | [13] AgentDebug | §3.5 评估范式新增 §3.5.1 子节，定位 [13] 为 [7] AaaJ 路线在 root-cause 归因任务上的具体实现；与 [12] AHE 同属 LLM-as-judge 自动修复家族但时间尺度对偶（[12] training-loop 改 harness vs [13] inference-time 改 trajectory），且 [13] 缺 self-audit；新增 §3.8 "可证伪点追踪"——按 thesis 三条可证伪命题 (a)(b)(c) 分别落地"支持/反向/不可解"证据 + 下一步可解，关闭审计中"可证伪点追踪非 body 章节"差距；§6.3 新增四条限制（detector 强模型依赖未系统体检 / κ 术语膨胀 / 同篇内部方法描述不一致）；contradictions.md 记录 [13] vs [11] "trajectory root-cause judgment 机制 vs LLM-judge"（与 11↔12 同源第三例）+ [13] vs thesis "front-line vs triaged-subset 部署"+ [13] 同篇 Algorithm 1 与 §3.2 内部不一致 |
 
-*Report version: v2.4（2026-05-01）。基于 KWeaver 路线图设计稿，全面对齐 Harness Engineering 定位与飞轮中心论。*
+*Report version: v2.5（2026-05-04）。基于 KWeaver 路线图设计稿，全面对齐 Harness Engineering 定位与飞轮中心论；§3.8 落实 thesis 可证伪点追踪闭环。*

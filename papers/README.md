@@ -2,7 +2,7 @@
 
 > ⚠️ 论文 PDF 原文件不纳入 Git 版本管理（见 `.gitignore`）。  
 > 本文件作为论文索引，记录每篇论文的元信息和获取方式。  
-> **Last Updated:** 2026-05-01
+> **Last Updated:** 2026-05-04
 
 ## 收录论文
 
@@ -20,6 +20,7 @@
 | 10 | Policy-Invisible Violations in LLM-Based Agents (Sentinel / PhantomPolicy) | 2026 | [2604.12177](https://arxiv.org/abs/2604.12177) | — | [10](../notes/10_policy_invisible_violations_in_llm_based.md) ✅ |
 | 11 | Near-Miss: Latent Policy Failure Detection in Agentic Workflows | 2026 | [2603.29665](https://arxiv.org/abs/2603.29665) | — | [11](../notes/11_near_miss_latent_policy_failure_detection.md) ✅ |
 | 12 | Agentic Harness Engineering: Observability-Driven Automatic Evolution of Coding-Agent Harnesses | 2026 | [2604.25850](https://arxiv.org/abs/2604.25850) | — | [12](../notes/12_agentic_harness_engineering_observability_driven_automatic.md) ✅ |
+| 13 | Where LLM Agents Fail and How They can Learn From Failures (AgentDebug) | 2025 | [2509.25370](https://arxiv.org/abs/2509.25370) | — | [13](../notes/13_where_llm_agents_fail_and_how.md) ✅ |
 
 > **图例：** ✅ 全文已读 | 🟡 摘要/综述已读 | 🔲 待读  
 > **PDF 说明：** `Breaking the Observability Tax` 发表于 IEEE Access（付费），需通过机构权限从 [IEEE Xplore](https://doi.org/10.1109/ACCESS.2026.3675074) 手动下载。
