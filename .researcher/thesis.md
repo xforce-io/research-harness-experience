@@ -99,6 +99,13 @@ signal discipline, applied one layer deeper — not a new principle.
   or detector versioning — production blind spots.
 - **Papers that conflate sampling informativeness with judgment accuracy** —
   see thesis section above; this is a category error we will not absorb.
+- **Auto-feedback / auto-fix loops that do not audit their own reliability.**
+  Reporting only end-to-end success deltas without measuring fix-prediction
+  or regression-prediction accuracy of the *feedback itself*. AHE [12] reports
+  both (fix ≈ 5× random, regression ≈ 2× random); AgentDebug [13] reports
+  neither. End-to-end gains in this regime cannot distinguish "the feedback
+  was right" from "the base model recovered despite noisy feedback" — and
+  the latter is far more common than authors imply.
 
 ## Examples
 
