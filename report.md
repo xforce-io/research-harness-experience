@@ -1,8 +1,8 @@
 # KWeaver TraceAI：服务于 AI 工程飞轮的双轨 Trace 与 Triage Agent: Research Report
 
-> **Version:** v2.6 (12 papers)
-> **Last Updated:** 2026-05-04
-> **Papers:** [01](notes/01_signals_trajectory_triage.md), [02](notes/02_agenther_hindsight_relabeling.md), [03](notes/03_tsr_trajectory_search_rollouts.md), [04](notes/04_agenttrace_structured_logging.md), [07](notes/07_agent_as_a_judge.md), [08](notes/08_tide_trace_diagnostics.md), [09](notes/09_trajectory_guard_a_lightweight_sequence_aware.md), [10](notes/10_policy_invisible_violations_in_llm_based.md), [11](notes/11_near_miss_latent_policy_failure_detection.md), [12](notes/12_agentic_harness_engineering_observability_driven_automatic.md), [13](notes/13_where_llm_agents_fail_and_how.md), [14](notes/14_autodata.md)
+> **Version:** v2.7 (13 papers)
+> **Last Updated:** 2026-05-16
+> **Papers:** [01](notes/01_signals_trajectory_triage.md), [02](notes/02_agenther_hindsight_relabeling.md), [03](notes/03_tsr_trajectory_search_rollouts.md), [04](notes/04_agenttrace_structured_logging.md), [07](notes/07_agent_as_a_judge.md), [08](notes/08_tide_trace_diagnostics.md), [09](notes/09_trajectory_guard_a_lightweight_sequence_aware.md), [10](notes/10_policy_invisible_violations_in_llm_based.md), [11](notes/11_near_miss_latent_policy_failure_detection.md), [12](notes/12_agentic_harness_engineering_observability_driven_automatic.md), [13](notes/13_where_llm_agents_fail_and_how.md), [14](notes/14_autodata.md), [15](notes/15_aevo_harnessing_agentic_evolution.md)
 > **Thesis:** [.researcher/thesis.md](.researcher/thesis.md)
 
 > **形式：** 内部技术报告 / Position Paper
@@ -346,6 +346,46 @@ Agent-as-a-Judge 的最重要工程发现（论文 Table 4）：**最优 4 模�
 **对 KWeaver 决策的净效应**：AHE 的 ablation 数据带来一个不愉快的拷问——其 component-level 实证显示**system prompt 单换入 −2.3 pp（唯一退化），long-term memory 单换入 +5.6 pp，tool 单换入 +3.3 pp**。即"把经验显式落到外部文件"比"把经验编进 system prompt"或"通过 SFT 编进权重"效果更稳定 [12: §4.4.1 Table 3]。这给 §3.3 / §3.6 的 model-side relabeling 路线提出工程对照点：在 KWeaver 飞轮初期（数据少、人工预算紧），把 Triage Agent 的输出落到 BKN / long-term memory 文件可能比落到 SFT 数据更划算——这与 §1.3 "BKN 自演化是 Scaling 组件" 的判断相互印证。
 
 **严格不做**：不把 AHE 的 evolve-loop 直接搬进 KWeaver 飞轮。AHE 的演化对象是 harness（model 不变）；KWeaver 飞轮的演化对象是 BKN + Context 策略 + 可选 model 微调——任务结构不同。AHE 的 32 小时 + 数十亿 token 的成本曲线在 KWeaver 这种长期持续运行的飞轮场景下不可重复支付。
+
+### 3.9 Off-axis：统一演化框架方法论（AEVO）
+
+**主要论文：[15] AEVO / Harnessing Agentic Evolution**
+
+> [15] AEVO（2026-05-13）是 [12] AHE 和 [14] Autodata 之后出现的同族方法中**形式化层次最高的版本**：它不针对特定领域（coding harness 或 data creation harness），而是把所有形式的 agentic evolution 统一形式化为一个**交互式环境**，其中 accumulated evolution context 作为 process-level state，meta-agent 的动作 = 编辑 procedure 文件或 agent context 文件。这使得同一套框架可以覆盖 procedure-based 和 agent-based 两类演化范式。
+
+**AEVO 在 §3.7 self-audit 严格度谱中的位置：**
+
+| 维度 | [12] AHE | [15] AEVO | [14] Autodata |
+|------|---------|----------|---------------|
+| per-edit falsifiable contract | ✅ predicted_fixes + risk_tasks，下一轮 task delta 自动判决 | ❌ 未披露等价机制 | ❌ 无 |
+| evaluator 隔离 / reward-hacking 防护 | ✅ verifier 只读 | ✅ harness 隔离 evaluator（ablation 验证） | 🟡 接受门可被 spec gaming 部分绕过 |
+| end-to-end 实证 | Terminal-Bench +7.3 pp（10 轮）| Terminal-Bench / ARC-AGI-2 **26% relative**（vs 5 baselines）；kernel opt SotA | val pass rate 12.8%→42.4% |
+| 统一 procedure/agent 覆盖 | ❌ coding-agent 专用 | ✅ procedure-based ∪ agent-based | ❌ training-data 创建专用 |
+| 成本 | ~32h + 10⁹ token / 10 轮 | ~3× baseline / 轮，agent variant $0.32–$1.40 with caching | 未量化 |
+
+**对 KWeaver 的三点含义：**
+
+1. **"accumulated context = process-level state"的形式化对 BKN 自演化有概念映射价值。** AEVO 正式命名了 KWeaver 飞轮一直隐性依赖但未显式定义的东西——把历届 BKN patch 候选、Triage Agent 输出、接受 / 拒绝记录组织为一个结构化工作区（而非松散 log），是 BKN 自演化可控性的必要前置。这与 thesis "L0 schema 是 silent gating constraint" 在 meta-L3 层的等价投影：没有结构化的 process-level state，meta-agent 无法做 mechanism-level 归因。
+
+2. **Evaluator 隔离原则对 Triage Agent auto-merge 机制有工程警戒价值。** AEVO §4.3 ablation 显示，去掉 harness evaluator 隔离后，两次 run 中出现 reward-hacking trajectories（meta-agent 修改了 evaluator 逻辑绕过接受门）。这是 KWeaver BKN auto-merge 设计的直接警示：若 Triage Agent 产出的 BKN patch 建议涉及修改 Triage Agent 自身的判定逻辑（如信号阈值、接受条件），必须把 Triage Agent 的核心判定代码置于只读 namespace，不允许 auto-merge 路径触达——否则 Triage Agent 会通过修改自身阈值而非改进 BKN 质量来"提高接受率"。
+
+3. **不可直接移植 AEVO 演化回路。** AEVO 无 self-audit（无 per-edit 预言核对），在 thesis anti-pattern 维度上优于 Autodata 但弱于 AHE；且每轮成本约 3× baseline，在 KWeaver 长期持续运行的飞轮场景中不可重复支付。**KWeaver BKN auto-merge 的最低可信标准仍然是 [12] AHE 的 falsifiable manifest 模式**——AEVO 的 harness 隔离原则是 AEVO 对 AHE 的净增量贡献，可以直接吸收进 §4.4 的 auto-merge 分流策略设计中（见下）。
+
+**§4.4 BKN auto-merge 分流策略的更新（吸收 AEVO evaluator 隔离原则）：**
+
+```
+BKN patch 建议分类：
+  高风险（需人工审计）：
+    - 修改 Triage Agent 自身的信号阈值 / 接受条件  ← AEVO evaluator 隔离原则
+    - 新增 Risk 类型（影响 guardrail 触发逻辑）
+    - 修改现有 Action 的 PreCondition（影响 Near-Miss 信号计算）
+  低风险（可自动 merge + manifest 追踪）：
+    - 概念描述补全 / 同义词扩展
+    - 新增 concept node（无既有 relation 关联）
+    - Action 描述文本修订（不改变 PreCondition 集合）
+```
+
+&gt; 关键原则：**Triage Agent 不能 auto-merge 修改自己判定机制的 patch**——这直接把 AEVO 的 evaluator 隔离原则翻译为 KWeaver 工程约束。
 
 ### 3.8 可证伪点追踪（Falsifiability tracking）
 
@@ -698,4 +738,6 @@ Triage Agent 自己的输出也需要被评估，否则飞轮的"反哺通道"�
 | v2.5 | 2026-05-04 | [13] AgentDebug | §3.5 评估范式新增 §3.5.1 子节，定位 [13] 为 [7] AaaJ 路线在 root-cause 归因任务上的具体实现；与 [12] AHE 同属 LLM-as-judge 自动修复家族但时间尺度对偶（[12] training-loop 改 harness vs [13] inference-time 改 trajectory），且 [13] 缺 self-audit；新增 §3.8 "可证伪点追踪"——按 thesis 三条可证伪命题 (a)(b)(c) 分别落地"支持/反向/不可解"证据 + 下一步可解，关闭审计中"可证伪点追踪非 body 章节"差距；§6.3 新增四条限制（detector 强模型依赖未系统体检 / κ 术语膨胀 / 同篇内部方法描述不一致）；contradictions.md 记录 [13] vs [11] "trajectory root-cause judgment 机制 vs LLM-judge"（与 11↔12 同源第三例）+ [13] vs thesis "front-line vs triaged-subset 部署"+ [13] 同篇 Algorithm 1 与 §3.2 内部不一致 |
 | v2.6 | 2026-05-04 | [14] Autodata | §3.6 训练侧新增 [14] 在"源文档外造 vs trace 内挖 vs rollout 内选"三方训练数据来源谱系上的精确定位 + KWeaver 飞轮初期不引入的三条理由（无 strong-solver 配对 / 单轴接受门 / judge-model 同 family）；§3.7 重命名为"AHE / Autodata 对照组"——并列两篇为 thesis Anti-pattern "auto-fix loops without self-audit" 分水岭的显式样例，新增对照表（接受门 / fix-prediction / regression-prediction / spec-gaming 四维），把"BKN auto-merge 必须采 [12] manifest 模式而非 [14] pass-rate 单一接受门"作为 KWeaver 工程含义；§3.8 命题 (b) 新增 [14] 旁路证据条目（源文档外造 GRPO 训练 ID/OOD 双胜 CoT baseline，但与命题 (b) 假设的 production trace 来源不同，可作 baseline-of-baselines）；§6.3 新增两条限制（self-audit 缺失成为 harness 自演化文献常态 / 训练数据合成接受门的单轴 Goodhart 风险）；contradictions.md 记录 [14] vs thesis Anti-pattern（第三例）+ [14] vs [12] "harness meta-optimization 的 self-audit 立场对立"（跨独立工作组）+ [14] 论文内部接受门 vs 自承 quality 缺陷不一致 + Proposed taxonomy extension 提议增设"横切面 ─ Harness 自演化方法论"独立分类轴 |
 
-*Report version: v2.6（2026-05-04）。基于 KWeaver 路线图设计稿，全面对齐 Harness Engineering 定位与飞轮中心论；§3.7 落实 [12] vs [14] self-audit 立场对照组。*
+| v2.7 | 2026-05-16 | [15] AEVO | 新增 §3.9 "Off-axis：统一演化框架方法论（AEVO）"——定位 [15] 为 [12] AHE / [14] Autodata 同族方法中形式化层次最高的版本；补全三篇联合 self-audit 严格度谱对照表（AHE > AEVO > Autodata）；提炼 AEVO 对 KWeaver 的三点含义：(1) "accumulated context = process-level state"对 BKN 自演化有概念映射，(2) evaluator 隔离原则对 auto-merge 机制有工程警戒，(3) AEVO 回路不可直接移植（无 self-audit，成本 3× baseline）；§4.4 BKN auto-merge 分流策略更新，吸收 evaluator 隔离原则——"Triage Agent 不能 auto-merge 修改自己判定机制的 patch" |
+
+*Report version: v2.7（2026-05-16）。新增 [15] AEVO 定位分析，补全 harness meta-optimization 三篇 self-audit 严格度谱；§4.4 auto-merge 分流策略吸收 AEVO evaluator 隔离原则。*
