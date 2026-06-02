@@ -24,12 +24,12 @@ if unreproduced, demonstration that lightweight signals can reach a useful
 operating point. The most under-recognized payoff of signal triage is on
 *successful* trajectories: roughly two-thirds of "task-completed" traces still
 contain learnable hidden friction (policy violations, inefficient tool use),
-which is exactly the regime KWeaver needs for ongoing model improvement once
-gross failures are rare.
+which is exactly the regime a production agent system needs for ongoing model
+improvement once gross failures are rare.
 
 Schema design (L0) is the silent gating constraint: AgentTrace-style operational
 + cognitive + contextual surfaces are necessary but not sufficient — a complete
-KWeaver schema must additionally capture user-interaction discourse and
+trace schema must additionally capture user-interaction discourse and
 system-resource state, or L1 Interaction and Environment signals cannot be
 computed at all. Observability cost should be controlled by topology-aware
 sentinel sampling that uses L1 signals as upgrade triggers, not by uniform
@@ -52,7 +52,7 @@ should force a reframing.
 
 **Methodological constraint on the judgment layer.** Judgment chains should
 drive determinism as deep into the tree as possible. When judgment rules are
-enumerable (e.g. `BKN.PreCondition` → required RO set), mechanistic oracles
+enumerable (e.g. enumerable pre-condition rules → required-evidence set), mechanistic oracles
 strictly dominate LLM-judge — the reason is not cost, it is that LLM variance
 is itself harmful to production-grade judgment, regardless of mean accuracy.
 Where judgment unavoidably depends on the LLM (genuinely irreducible semantic

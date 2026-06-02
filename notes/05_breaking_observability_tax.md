@@ -28,7 +28,7 @@
   - 利用 Agent 的调用拓扑图来决定采样策略
   - 类似于 Adaptive Sampling in distributed tracing
 
-## 3. 与 KWeaver TraceAI 的落地映射
+## 3. 工程落地启示
 
 * **分级采样策略**（直接可用）：
   - Level 0: 仅记录 Action 的入/出/耗时/状态码（极低成本）

@@ -1,12 +1,9 @@
-# 论文原文档 — 仅本地保留，不纳入 Git（用 references/papers/INDEX.md + scripts/fetch-papers.sh 重新获取）
+# 论文原文档 — 仅本地保留，不纳入 Git（用 papers/README.md 索引按 arXiv ID 重新获取）
 papers/*.pdf
 papers/*.PDF
 
 # 论文 pdftotext 提取的纯文本 — copyright 灰色地带，本地工作产物，不入库
 notes/_extracted/
-
-# 原始 KWeaver 内部材料的本地暂存（脱敏后入 references/）
-refs-staging/
 
 # 大型数据文件（脱敏样本可保留，但原始大文件不入库）
 data/*.json.gz

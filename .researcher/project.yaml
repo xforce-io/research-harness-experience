@@ -1,5 +1,5 @@
 # project.yaml — structured project soul
-# Topic: KWeaver TraceAI — Post-Deployment Agent Engineering Stack
+# Topic: Post-Deployment Agent Engineering Stack
 # (Observability → Triage → Relabeling → Model Iteration)
 
 research_questions:
@@ -14,7 +14,7 @@ research_questions:
   - id: RQ5
     text: "How do non-semantic signal methods (phrase patterns, sequence analysis, action-component graphs) compare with — and complement — semantic evaluation paradigms (LLM-as-Judge, Agent-as-a-Judge, TIDE/TRACE) for finding learnable trajectories?"
   - id: RQ6
-    text: "Are there agent-trajectory failure modes (esp. for DPH-style orchestrated execution with weak user-facing dialog) that current signal taxonomies miss, and what new signal classes does KWeaver need to define beyond the published literature?"
+    text: "Are there agent-trajectory failure modes (esp. for orchestrated multi-step execution with weak user-facing dialog) that current signal taxonomies miss, and what new signal classes does a production agent system need to define beyond the published literature?"
 
 inclusion_criteria:
   - "Must address one of RQ1–RQ6, ideally with an implementable mechanism (detector, schema, pipeline, or relabeling rule), not just a position."

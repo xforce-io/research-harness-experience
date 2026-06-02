@@ -172,7 +172,7 @@ $$\text{MI} = \text{AUV}_{w/\text{ memory}} - \text{AUV}_{w/o \text{ memory}}$$
 
 - BlocksWorld、FrozenLake、Sudoku 是符号 puzzle
 - AlfWorld、WebShop 更现实但仍是模拟环境
-- **生产 agentic harness（KWeaver、Cursor、Devin 等）在 TIDE 框架下表现如何，未验证**
+- **生产 agentic harness（Cursor、Devin 等）在 TIDE 框架下表现如何，未验证**
 
 ### 5.7 全是离线分析，无在线应用
 
@@ -272,29 +272,29 @@ AgentHER Stage 1 用这些标签调整严重度权重 w
 
 ---
 
-## 7. KWeaver TraceAI 落地清单（Block 7）
+## 7. 工程落地启示（Block 7）
 
 ### 7.1 直接可借鉴
 
-- ✅ **AUV 作为 Action Lifecycle 效率指标**：从单纯 SR 升级到"成功 + 多快收敛"
-- ✅ **LR 作为 Triage Center 的循环检测维度**：与 Signals.Loop 配合，前者粗粒度标签后者细粒度评分
-- ✅ **MI 启发下的 Evidence Chain 评估**：定期 ablation 测试"Evidence Chain 对 KWeaver 决策贡献多大"
+- ✅ **AUV 作为执行生命周期效率指标**：从单纯 SR 升级到"成功 + 多快收敛"
+- ✅ **LR 作为分诊环节的循环检测维度**：与 Signals.Loop 配合，前者粗粒度标签后者细粒度评分
+- ✅ **MI 启发下的 evidence-chain 评估**：定期 ablation 测试"evidence-chain 对被观测 agent 的决策贡献多大"
 
 ### 7.2 需要适配
 
-- ❌ **Cycle 检测的状态 embedding**：KWeaver 业务的状态空间不像 BlocksWorld 那么干净。需要定义"DPH 编排状态等价"的判定规则
-- ❌ **$t_{\max}$ 选择**：KWeaver 任务时长分布可能高度异质，需要按业务类型分组校准
+- ❌ **Cycle 检测的状态 embedding**：真实业务的状态空间不像 BlocksWorld 那么干净，需要定义"编排式多步执行状态等价"的判定规则
+- ❌ **$t_{\max}$ 选择**：生产任务时长分布可能高度异质，需要按业务类型分组校准
 
 ### 7.3 必须自补（论文盲区）
 
-- [ ] **指标的人工验证**：从 KWeaver trace 中抽取 100 条人工诊断（"卡 loop"/"高效"/"记忆有害"），验证 AUV/LR/MI 与人类判断对齐率
-- [ ] **在线 / 流式版本**：论文是离线分析，KWeaver 需要在 trajectory 进行中近实时计算 AUV 趋势
+- [ ] **指标的人工验证**：从生产 trace 中抽取 100 条人工诊断（"卡 loop"/"高效"/"记忆有害"），验证 AUV/LR/MI 与人类判断对齐率
+- [ ] **在线 / 流式版本**：论文是离线分析，生产监控需要在 trajectory 进行中近实时计算 AUV 趋势
 
-### 7.4 KWeaver 特定开放问题
+### 7.4 开放问题
 
-- [ ] DPH 编排定义本身可作为"理想轨迹模板"——TIDE 的 cycle 检测可与 DPH 模板偏离度结合
-- [ ] KWeaver 的多 Agent 协作场景：TIDE 的单 agent 假设需要扩展（global trajectory 还是 per-agent 的 AUV/LR/MI？）
-- [ ] AUV/LR/MI 是否能进入 TraceAI 监控大盘的"实时 Top-K 异常 trace"展示维度？
+- [ ] 编排式多步执行的流程定义本身可作为"理想轨迹模板"——TIDE 的 cycle 检测可与模板偏离度结合
+- [ ] 多 Agent 协作场景：TIDE 的单 agent 假设需要扩展（global trajectory 还是 per-agent 的 AUV/LR/MI？）
+- [ ] AUV/LR/MI 是否能进入 trace 平台监控大盘的"实时 Top-K 异常 trace"展示维度？
 
 ---
 

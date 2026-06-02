@@ -6,7 +6,7 @@
 > **关键论文：**
 > - **原始**：Zhuge et al., 2024 → ICML 2025: "Agent-as-a-Judge: Evaluate Agents with Agents" — [arXiv:2410.10934](https://arxiv.org/abs/2410.10934)（Meta + KAUST）
 > - **综述**：You et al., 2026-01-08: "A Survey on Agent-as-a-Judge" — [arXiv:2601.05111](https://arxiv.org/abs/2601.05111)（HK PolyU + Cambridge + Huawei）
-> **优先级：** 🟡 P1.5 — 评估范式横切面（推理后评估，KWeaver 中长期相关）
+> **优先级：** 🟡 P1.5 — 评估范式横切面（推理后评估，对生产级 agent 系统中长期相关）
 > **角色定位：** 综述中的"重量级评估范式代表"——Signals 路线的对照组，是综述刻画"评估范式 vs 采样范式"对峙的关键支点。
 
 ---
@@ -207,7 +207,7 @@ DevAI 仅 55 任务，且**全是 AI 开发任务**。Agent-as-Judge 在以下�
 ### 5.7 评估成本的"per-task"误导性
 
 - $30.58 是**整批 55 任务的总成本**（per task ≈ $0.55）
-- 一个真实部署的 KWeaver 系统每天可能产生数千轨迹 → **每天 $1000+ 评估成本**
+- 一个真实部署的生产级 agent 系统每天可能产生数千轨迹 → **每天 $1000+ 评估成本**
 - 论文的"低成本"宣传是相对 human 而非相对部署可行性
 
 ### 5.8 DAG-structured requirement 假设过强
@@ -314,39 +314,39 @@ DevAI 仅 55 任务，且**全是 AI 开发任务**。Agent-as-Judge 在以下�
 
 ---
 
-## 7. KWeaver TraceAI 落地清单（Block 7）
+## 7. 工程落地启示（Block 7）
 
-### 7.1 当前阶段（agentic harness）的角色
+### 7.1 在生产级 agent 系统中的角色定位
 
-- ✅ **作为"高价值轨迹的精评后端"**：在 Triage Center 标记的 top-K% 轨迹上选择性运行 Agent-as-Judge
+- ✅ **作为"高价值轨迹的精评后端"**：在 trace 平台分诊环节标记的 top-K% 轨迹上选择性运行 Agent-as-Judge
 - ❌ **不作为实时评估器**：118 分钟/批次的延迟在 online 场景不可接受
 - ✅ **作为"复盘 / 周报 / Postmortem 的自动证据生成"**：Agent-as-Judge 的 graph + locate + read 模块输出 = 高质量解释
 
 ### 7.2 直接可借鉴
 
-- ✅ **4 模块最小集**（Graph + Locate + Read + Ask）作为 KWeaver 评估子系统的骨架
+- ✅ **4 模块最小集**（Graph + Locate + Read + Ask）作为评估子系统的骨架
 - ✅ **黑盒 vs 灰盒分离**：先建黑盒能力（轨迹 unaccessible 假设），再可选打开灰盒
 - ✅ **"评估器自身有错误"** 的诚实姿态——不要把任何自动评估当成 ground truth；多数表决 / 人工抽查仍需保留
 
 ### 7.3 需要重写
 
-- ❌ **DevAI 的 DAG requirement 不适用**——KWeaver 业务的需求很少呈现这种清洁层级结构。需要自定义"业务需求结构"
-- ❌ **gpt-4o backbone 不固定**——KWeaver 应支持多 backbone 切换（开源 + 闭源）
+- ❌ **DevAI 的 DAG requirement 不通用**——真实业务的需求很少呈现这种清洁层级结构，需要自定义"业务需求结构"
+- ❌ **gpt-4o backbone 不固定**——生产部署应支持多 backbone 切换（开源 + 闭源）
 
 ### 7.4 必须自补（论文盲区）
 
-- [ ] **类不平衡校准**：KWeaver 的多数轨迹可能成功，少数失败 → 需 PR-AUC 而非 alignment 作主指标
-- [ ] **评估成本上限设定**：单轨迹 $0.55 在 KWeaver scale 是否可承受？需要 budget gate
+- [ ] **类不平衡校准**：生产环境多数轨迹可能成功、少数失败 → 需 PR-AUC 而非 alignment 作主指标
+- [ ] **评估成本上限设定**：单轨迹 $0.55 在大规模下是否可承受？需要 budget gate
 - [ ] **评估器自身的版本管理**：backbone 升级、模块权重变化时如何保证评估可比
 
-### 7.5 KWeaver 特定开放问题
+### 7.5 开放问题
 
-- [ ] DPH 编排定义本身可作为 Agent-as-Judge 的 "graph" 模块输入——是否可以**用 DPH 定义自动生成 requirement 列表**？
-- [ ] 在 black-box 86-90% alignment 假设下，KWeaver 容忍多少评估错误？这取决于评估结果的下游用途（复盘可容忍 10%，训练数据筛选不可）
-- [ ] 综述（You 2026）的 Stage 3 self-corrective judge 是否值得 KWeaver 投入研究？目前看 wishlist 多于实证
+- [ ] 编排式多步执行的流程定义本身可作为 Agent-as-Judge 的 "graph" 模块输入——是否可以**用编排定义自动生成 requirement 列表**？
+- [ ] 在 black-box 86-90% alignment 假设下，系统能容忍多少评估错误？这取决于评估结果的下游用途（复盘可容忍 10%，训练数据筛选不可）
+- [ ] 综述（You 2026）的 Stage 3 self-corrective judge 是否值得投入研究？目前看 wishlist 多于实证
 
 ---
 
 ## 8. 一句话定位
 
-> **Agent-as-a-Judge 是综述的"重量级评估范式"代表**：原始论文（Zhuge 2024）首次把 LLM-as-Judge 升级为带工具/记忆/规划的 agentic 评估器，在 DevAI 单 benchmark 上把 alignment rate 从 60-70% 推到 86-92%，并以 ~$0.55/任务的成本接近 human-level 表现。**它是 Signals 路线的对照组而非对手**——两者度量不同（评判 vs 采样），最佳组合是"Signals 粗筛 + Agent-as-Judge 精评"。论文最有价值的工程发现是 **Memory 和 Planning 模块对评估有害（最优 4 模块 = Graph+Locate+Read+Ask）**——这是 KWeaver 设计评估子系统时必须知道的反直觉结果。
+> **Agent-as-a-Judge 是综述的"重量级评估范式"代表**：原始论文（Zhuge 2024）首次把 LLM-as-Judge 升级为带工具/记忆/规划的 agentic 评估器，在 DevAI 单 benchmark 上把 alignment rate 从 60-70% 推到 86-92%，并以 ~$0.55/任务的成本接近 human-level 表现。**它是 Signals 路线的对照组而非对手**——两者度量不同（评判 vs 采样），最佳组合是"Signals 粗筛 + Agent-as-Judge 精评"。论文最有价值的工程发现是 **Memory 和 Planning 模块对评估有害（最优 4 模块 = Graph+Locate+Read+Ask）**——这是设计 agent 评估子系统时必须知道的反直觉结果。
