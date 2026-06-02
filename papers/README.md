@@ -23,6 +23,7 @@
 | 13 | Where LLM Agents Fail and How They can Learn From Failures (AgentDebug) | 2025 | [2509.25370](https://arxiv.org/abs/2509.25370) | — | [13](../notes/13_where_llm_agents_fail_and_how.md) ✅ |
 | 14 | Autodata: an automatic data scientist to create high-quality data (Meta FAIR blog) | 2026 | [blog](https://facebookresearch.github.io/RAM/blogs/autodata/) (arXiv forthcoming) | — | [14](../notes/14_autodata.md) ✅ |
 | 15 | AEVO: Harnessing Agentic Evolution | 2026 | [2605.13821](https://arxiv.org/abs/2605.13821) | — | [15](../notes/15_aevo_harnessing_agentic_evolution.md) ✅ |
+| 16 | When Agents go Astray: Course-Correcting SWE Agents with PRMs (SWE-PRM) | 2025 | [2509.02360](https://arxiv.org/abs/2509.02360) | — | [16](../notes/16_when_agents_go_astray_course_correcting.md) ✅ |
 
 > **图例：** ✅ 全文已读 | 🟡 摘要/综述已读 | 🔲 待读  
 > **PDF 说明：** `Breaking the Observability Tax` 发表于 IEEE Access（付费），需通过机构权限从 [IEEE Xplore](https://doi.org/10.1109/ACCESS.2026.3675074) 手动下载。
