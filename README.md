@@ -44,5 +44,6 @@
 | 13 | Where LLM Agents Fail and How They Learn (AgentDebug) | off-axis | P2 | ✅ |
 | 14 | Autodata: automatic data scientist | off-axis | P2 | ✅ |
 | 15 | AEVO: Harnessing Agentic Evolution | off-axis | P2 | ✅ |
+| 16 | SWE-PRM: Course-Correcting SWE Agents with PRMs | off-axis (in-flight 过程监督) | P2 | ✅ |
 
 > **图例:** ✅ 全文已读 | 🟡 摘要/综述已读 | 🔲 待读
