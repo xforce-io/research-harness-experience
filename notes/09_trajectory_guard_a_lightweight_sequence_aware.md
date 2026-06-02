@@ -89,7 +89,7 @@ $$L = L_{contrastive} + \alpha \cdot L_{reconstruction}, \quad \alpha = 0.5$$
 
 ## Relations
 
-- **competes-with `01_signals_trajectory_triage` [high]**：两篇都在 L1 分诊层主张"非 LLM-Judge 的廉价前置过滤"，但方法论尖锐对立——Signals 坚持"信号不是质量分"、用可解释短语 + 序列规则；Trajectory Guard 用监督学习的 Siamese RNN 输出黑箱二元 anomaly score，正是 Signals 反对的设计。两者在同一职责位上提供互斥范式：可解释规则 vs 学习型小代理。Trajectory Guard 的 F1 0.92 与 Signals 的 82% informativeness 不在同一指标上（前者是分类正确性，后者是采样信息量）——直接数字对比是误导，但作为方法论分叉是 KWeaver 必须做的二选一。
+- **competes-with `01_signals_trajectory_triage` [high]**：两篇都在 L1 分诊层主张"非 LLM-Judge 的廉价前置过滤"，但方法论尖锐对立——Signals 坚持"信号不是质量分"、用可解释短语 + 序列规则；Trajectory Guard 用监督学习的 Siamese RNN 输出黑箱二元 anomaly score，正是 Signals 反对的设计。两者在同一职责位上提供互斥范式：可解释规则 vs 学习型小代理。Trajectory Guard 的 F1 0.92 与 Signals 的 82% informativeness 不在同一指标上（前者是分类正确性，后者是采样信息量）——直接数字对比是误导，但作为方法论分叉是生产分诊层设计中必须做的二选一。
 - **competes-with `07_agent_as_a_judge` [high]**：论文显式把 GPT-4o Mini / Gemini Flash 1.5 / Deepseek / Phi-3-mini 作为 LLM Judge 基线对比，并以 17–27× 速度优势作为核心卖点。这是 thesis 中"评估范式 vs 采样范式"对峙在新一轮论文中的延续——只是 Trajectory Guard 用一个有监督学到的"小判官"替代了规则系统。
 - **orthogonal `06_agentseer_agentic_vulnerabilities` [med]**：两篇都拒绝纯语义检测，但用的是同一轨迹的两种结构视图——AgentSeer 看图（action-component graph 拓扑），Trajectory Guard 看序列（GRU 时序）。两者天然可叠加：图侧抓"路径异常"，序列侧抓"时序异常"。
 - **builds-on `04_agenttrace_structured_logging` [low]**：Trajectory Guard 接受结构化工具调用序列作为输入（AgentAlign 即 JSON tool call 序列），隐式假设 AgentTrace 类的 Operational + Contextual 日志已就位。论文未引用 AgentTrace；该关联是按数据格式兼容性反推的工程依赖。

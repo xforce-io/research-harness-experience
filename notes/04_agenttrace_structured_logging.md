@@ -158,7 +158,7 @@ $L(S, E, C) \to R$ 看似严谨，但论文不证明 **fidelity** 或 **causalit
 | 流式 LLM 输出 | 未讨论；marker 解析对流式 chunk 难以适用 |
 | 多 Agent 协作 | 未讨论；trace_id 传播跨 agent 的语义未定义 |
 
-**对 KWeaver 直接影响**：KWeaver 后端为 Go，**不能直接套用**。三面 Schema 概念可借鉴，wrapper 实现需重写。
+**工程落地影响**：若生产 agent 后端非 Python（例如 Go），**不能直接套用**。三面 Schema 概念可借鉴，wrapper 实现需重写。
 
 ### 5.4 认知面的脆弱性
 
@@ -202,7 +202,7 @@ Cognitive 提取依赖 LLM 输出包含解析锚点：
 - AgentTrace 的 **Cognitive 在 Signals 中无对应**（Signals 只看可观测的外显信号）
 - Signals 的 **Interaction 在 AgentTrace 中无对应**（AgentTrace 不记录用户对话动态）
 
-**对 KWeaver 的启示**：完整覆盖应取**两者并集**——五个独立 surface（用户交互、Agent 认知、Agent 操作、外部 I/O、系统资源）。
+**工程启示**：完整覆盖应取**两者并集**——五个独立 surface（用户交互、Agent 认知、Agent 操作、外部 I/O、系统资源）。
 
 ### 6.2 与 AgentHER [2] — Cognitive 是 Outcome Extractor 的输入
 
@@ -230,7 +230,7 @@ AgentSeer 需要 action graph：节点 = 工具调用，边 = 数据流 / 调用
 - Operational + Contextual span 的 method/op_type = 节点
 - Cognitive span 提供"为什么调用"的解释边
 
-**因此 AgentSeer 可以直接消费 AgentTrace 的 OTel span 流**——前提是 KWeaver 也输出兼容 OTel 的 span。
+**因此 AgentSeer 可以直接消费 AgentTrace 的 OTel span 流**——前提是上游 trace 平台也输出兼容 OTel 的 span。
 
 ### 6.5 与 TIDE/TRACE [8] — 名字撞车，分工不同
 
@@ -242,19 +242,21 @@ Agent-as-Judge 用 LLM 对全轨迹做语义评估（重而准）；AgentTrace �
 
 ---
 
-## 7. KWeaver TraceAI 落地清单（Block 7）
+## 7. 工程落地启示（Block 7）
+
+> 以下为厂商中立的工程落地启示：把 AgentTrace 的三面 Schema 移植到生产级 agent 系统的 observability 双链（call-chain + evidence-chain）时的可借鉴点、需重写点与待补全点。
 
 ### 7.1 直接可借鉴
 
-- ✅ **三面 Schema 命名学**：作为内部 Schema 评审 checklist
-- ✅ **trace_id + span_id 嵌套**：KWeaver 已有 Call Chain，需对齐 OTel 格式
-- ✅ **Cognitive 一等公民化**：在 Evidence Chain 之外，单独保留 LLM thought/plan/reflection 字段
+- ✅ **三面 Schema 命名学**：作为 Schema 评审 checklist
+- ✅ **trace_id + span_id 嵌套**：若 trace 平台已有 call-chain，需对齐 OTel 格式
+- ✅ **Cognitive 一等公民化**：在 evidence-chain 之外，单独保留 LLM thought/plan/reflection 字段
 - ✅ **写时 schema 校验**：避免下游分析失败
 
 ### 7.2 需要重写、不能直接照搬
 
-- ❌ **Python 装饰器实现**：KWeaver 后端 Go，需用 Go middleware 实现等价拦截
-- ❌ **monkey-patch 外部库**：用 SDK 侧 OTel instrumentation（OpenLLMetry-Go / 自研）替代
+- ❌ **Python 装饰器实现**：若后端为 Go 等非 Python 语言，需用对应 middleware 实现等价拦截
+- ❌ **monkey-patch 外部库**：用 SDK 侧 OTel instrumentation（如 OpenLLMetry 各语言版本 / 自研）替代
 
 ### 7.3 必须自行补全（论文未涉及）
 
@@ -265,10 +267,10 @@ Agent-as-Judge 用 LLM 对全轨迹做语义评估（重而准）；AgentTrace �
 
 ### 7.4 核心待回答问题
 
-- [ ] KWeaver 当前 Action Lifecycle 中，**Cognitive 类信息**（plan、reflection、reasoning）是否已结构化，还是混在 raw LLM completion 里？
-- [ ] KWeaver 是否需要"用户交互层"surface（参考 Signals）？这是 AgentTrace 没有但 KWeaver 业务可能需要的
-- [ ] **Action 的 Evidence Chain ↔ AgentTrace Contextual surface 的字段映射**是否一致？是否需要统一命名？
-- [ ] DPH 编排场景下，**多 Agent / 多 Action 嵌套**的 trace_id 传播协议是什么？
+- [ ] 生产系统当前的动作生命周期中，**Cognitive 类信息**（plan、reflection、reasoning）是否已结构化，还是混在 raw LLM completion 里？
+- [ ] 是否需要"用户交互层"surface（参考 Signals）？这是 AgentTrace 没有但许多业务场景需要的
+- [ ] **动作的 evidence-chain ↔ AgentTrace Contextual surface 的字段映射**是否一致？是否需要统一命名？
+- [ ] 编排式多步执行场景下，**多 Agent / 多动作嵌套**的 trace_id 传播协议是什么？
 
 ---
 

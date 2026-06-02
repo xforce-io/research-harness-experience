@@ -75,14 +75,14 @@
 
 ## 4. 当前阶段定位 ⚠️
 
-> **TSR 是训练侧 RL 方法（rollout 阶段加搜索），与 KWeaver 当前的 agentic harness 推理侧定位距离最远。**
+> **TSR 是训练侧 RL 方法（rollout 阶段加搜索），与以推理侧观测/分诊为主的 agentic harness 定位距离最远。**
 
 - TSR 优化的是**训练时**轨迹质量，不影响部署模型的推理行为
-- KWeaver 短期不会自建 RL 训练流水线 → TSR 不在落地范围内
+- 若工程主线短期不自建 RL 训练流水线 → TSR 不在落地范围内
 - **可借鉴的薄概念**：
-  - Beam Search "保留 B 条最优前缀逐轮扩展"的思想 → 可类比为 KWeaver 的 DPH 多分支评估（推理侧），但本质完全不同
-  - Instance Filtering 的"按奖励标准差排序"→ 可借鉴为 Triage Center 中"用历史成功率方差给任务优先级"的简单启发式
-- **不要照搬**：评分函数 S(·)、search budget、PPO/GRPO 集成——这些是训练管道概念，KWeaver 现阶段无对应模块
+  - Beam Search "保留 B 条最优前缀逐轮扩展"的思想 → 可类比为推理侧的编排式多步执行（多分支评估），但本质完全不同
+  - Instance Filtering 的"按奖励标准差排序"→ 可借鉴为分诊环节中"用历史成功率方差给任务优先级"的简单启发式
+- **不要照搬**：评分函数 S(·)、search budget、PPO/GRPO 集成——这些是训练管道概念，推理侧 harness 现阶段无对应模块
 
 ## 5. 批判性阅读（紧凑版）
 
@@ -98,7 +98,7 @@
 
 ## 6. 与其他论文的关系
 
-- **vs AgentHER [2]**：训练期 vs 部署后，理论互补（"in-situ 优化 + post-hoc 回收"）。但**两篇都是训练侧** —— 对当前 KWeaver 推理侧定位都不直接落地
+- **vs AgentHER [2]**：训练期 vs 部署后，理论互补（"in-situ 优化 + post-hoc 回收"）。但**两篇都是训练侧** —— 对以推理侧观测为主的定位都不直接落地
 - **vs Signals [1]**：Signals 是部署后的 model-free 信号筛选；TSR 是训练时的 model-heavy 搜索。**几乎正交**——综述时把它们放在不同象限
 - **vs AgentTrace [4] / Obs Tax [5]**：基本无关——TSR 是训练阶段方法，不依赖运行时 trace
 

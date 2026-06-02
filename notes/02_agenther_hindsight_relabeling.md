@@ -122,18 +122,18 @@
 - Round 3: +0.5 pp（接受率 68.0%）
 - **边际收益递减**：越强的模型产生越难重标的失败
 
-## 4. 与 KWeaver TraceAI 的落地映射
+## 4. 工程落地启示
 
 ### 4.1 直接可用的闭环
 
 ```
-TraceAI 采集轨迹
-    → Signals 探针分诊（Layer 1）
+trace 平台采集轨迹
+    → Signals 探针分诊（thesis 四层栈的 Triage 层）
         → 筛出 [Execution Failure] + [Incomplete/Constraint_Violation]
-            → AgentHER 管道重标（Layer 2）
+            → AgentHER 管道重标（thesis 四层栈的 Data-Reconstruction 层）
                 → 输出 SFT/DPO 数据
-                    → 微调 KWeaver 私有模型
-                        → 部署新模型 → 回到 TraceAI
+                    → 微调私有模型
+                        → 部署新模型 → 回到 trace 平台
 ```
 
 ### 4.2 成本模型
@@ -142,20 +142,20 @@ TraceAI 采集轨迹
 - **Stage 3 需要 LLM 调用**（每条轨迹 1-2 次 LLM 调用 + Multi-Judge 1 次）
 - **接受率 ~73%**：每 100 条失败轨迹可回收 ~73 条训练数据
 
-### 4.3 KWeaver 特定考量
+### 4.3 落地考量
 
-- [ ] **Action Lifecycle 的失败轨迹中，Incomplete 和 Constraint_Violation 比例有多高？**
-  - 这直接决定 AgentHER 在 KWeaver 场景的 ROI
-- [ ] **KWeaver 的 DPH 编排场景**：失败轨迹的"实际达成了什么"可以从 Action 的 Evidence Chain 中提取
-- [ ] **重标目标的领域适配**：需要确保 Stage 3 的 LLM 理解 KWeaver 的业务语义
+- [ ] **生产 agent 的失败轨迹中，Incomplete 和 Constraint_Violation 比例有多高？**
+  - 这直接决定 AgentHER 在具体场景的 ROI
+- [ ] **编排式多步执行场景**：失败轨迹的"实际达成了什么"可以从执行的证据链（evidence-chain）中提取
+- [ ] **重标目标的领域适配**：需要确保 Stage 3 的 LLM 理解目标领域的业务语义
 
-## 4.4 当前阶段定位 ⚠️
+## 4.4 适用阶段定位 ⚠️
 
-> **AgentHER 是训练管道方法（offline relabeling → SFT/DPO 数据），不直接适用于 KWeaver 当前的 agentic harness 阶段（推理侧）。**
+> **AgentHER 是训练管道方法（offline relabeling → SFT/DPO 数据），不直接适用于推理侧的 agentic harness 阶段。**
 
-- 短期内 KWeaver 不会自建 SFT/DPO 训练管道 → AgentHER 不是落地优先级
+- 若短期内不自建 SFT/DPO 训练管道 → AgentHER 不是落地优先级
 - 但其方法论中有一部分**当前可借鉴**：
-  - Stage 1 失败分类法（6 类）→ 可直接用于 TraceAI Triage Center 的"轨迹失败原因"标签
+  - Stage 1 失败分类法（6 类）→ 可直接用于分诊层的"轨迹失败原因"标签
   - Stage 2 Outcome Extractor → 推理侧可用作"实际达成 vs 预期"差距分析（不为训练，只为复盘）
   - Severity Weighting (`w<0.3` 丢弃)的"严重度过滤"思想 → 适用于任何 trace 优先级排序
 - 真正的 AgentHER 流水线（Stage 3 Prompt Relabeler + DPO 数据打包）应作为**未来训练侧扩展**保留，**当前不开发**

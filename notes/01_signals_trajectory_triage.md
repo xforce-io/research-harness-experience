@@ -155,7 +155,7 @@
 - §4.2 Counterfactual Standardization（排除"过采样失败"假设）—— 见 §3.4
 - 域内对比（airline vs retail）—— 见 §3.5
 
-**结论：单个信号的边际价值未量化**——这是 KWeaver 落地时需要自己做实验补的关键缺口。
+**结论：单个信号的边际价值未量化**——这是工程落地时需要自己做实验补的关键缺口。
 
 ---
 
@@ -213,7 +213,7 @@
 
 - 66.7% 的 informativeness 是这篇论文最强的实践案例（隐性摩擦发现）
 - 但论文把它埋在 §4.2，**没有作为核心卖点**
-- 综述时**应该重新放大这一点**：信号采样的核心价值不止"找失败"，更是"在表面成功中找隐性问题"——这正契合 KWeaver 的"复盘价值轨迹"定义
+- 综述时**应该重新放大这一点**：信号采样的核心价值不止"找失败"，更是"在表面成功中找隐性问题"——这正契合生产级 agent 系统"复盘价值轨迹"的需求
 
 ### 5.9 Environment 信号的"不可训练"是绝对的吗
 
@@ -238,7 +238,7 @@
 
 **关键关系**：
 - AgentTrace 的 Operational + Contextual 是 **Signals.Execution 信号的数据源**
-- AgentTrace 没有 user-facing dialog 字段 → **Signals.Interaction 信号需要 KWeaver 自己补一个 Schema 层**
+- AgentTrace 没有 user-facing dialog 字段 → **Signals.Interaction 信号需要生产系统自己补一个 Schema 层**
 - AgentTrace 的 Cognitive surface 被 Signals **完全没用上**——因为 Signals 坚持"无 model call、可观测信号"立场，cognitive 内容是 LLM 输出的产物，不是用户行为
 
 → **综述 takeaway**：完整 Schema 应取**两者并集 = 5 个 surface**（用户交互 / Agent 认知 / Agent 操作 / 外部 I/O / 系统资源）。
@@ -303,20 +303,20 @@ Signals 筛选 → AgentHER 重打标
 
 ---
 
-## 7. KWeaver TraceAI 落地清单（Block 7）
+## 7. 工程落地启示（Block 7）
 
 ### 7.1 直接可借鉴
 
-- ✅ **七种信号定义**作为 Triage Center 的最小必要规则集
+- ✅ **七种信号定义**作为生产分诊层的最小必要规则集
 - ✅ **2×2 分类轴**（数据层 × 学习/诊断用途）作为新增信号的判定框架
-- ✅ **"信号不是质量分"** 这一原则——不要把 Triage Center 设计成一个"打分系统"
+- ✅ **"信号不是质量分"** 这一原则——不要把分诊层设计成一个"打分系统"
 - ✅ **Failed + Successful 双流采样**——成功轨迹中找隐性问题（66.7% 的杀手级数据支撑）
 - ✅ **环境信号严格隔离**——不进入训练管道
 
 ### 7.2 需要补 / 需要重新设计
 
-- ❌ **检测器实现**：论文未发布，KWeaver 必须自研（phrase pattern、序列分析算法、阈值）
-- ❌ **聚合公式**：论文是黑箱，KWeaver 需自定义（建议从"任一信号触发即采样"起步，迭代加权重）
+- ❌ **检测器实现**：论文未发布，落地方必须自研（phrase pattern、序列分析算法、阈值）
+- ❌ **聚合公式**：论文是黑箱，需自定义（建议从"任一信号触发即采样"起步，迭代加权重）
 - ❌ **多语言扩展**：phrase pattern 只在英文场景验证
 
 ### 7.3 必须自行补全（论文盲区）
@@ -324,17 +324,17 @@ Signals 筛选 → AgentHER 重打标
 - [ ] **检测器开销基准**：每条轨迹处理 ms？vs 全量 LLM-as-Judge 的成本比？
 - [ ] **检测器漂移监控**：定期抽样人工 review，检查 informativeness rate 是否衰减
 - [ ] **私域 / 中文 / 跨语种适配**：disengagement / satisfaction 的本土化语料
-- [ ] **DPH 编排场景的"特定信号"**：例如"DPH 步骤跳变"、"Plan 与执行不一致"——这些 Signals 论文没有但 KWeaver 业务可能有
+- [ ] **编排式多步执行场景的"特定信号"**：例如"编排步骤跳变"、"Plan 与执行不一致"——这些 Signals 论文没有但具体业务可能有
 
-### 7.4 KWeaver 特定开放问题
+### 7.4 生产场景开放问题
 
-- [ ] KWeaver 的业务以 **DPH 编排执行为主，user-facing dialog 较弱** → Interaction 信号的 ROI 可能远低于 Execution + Environment。需要数据：当前轨迹中三类信号各自命中率
-- [ ] **DPH 编排定义本身**就是"预期行为图"，可以用作 Loop 检测的 ground-truth baseline——比 Signals 论文用的"sequence analysis"更精确
-- [ ] **τ-bench 的 1.52× 效率数字不能直接外推**到 KWeaver——需要在 KWeaver 自己的轨迹池上做小规模标注实验复现
+- [ ] 若业务以 **编排式多步执行为主、user-facing dialog 较弱** → Interaction 信号的 ROI 可能远低于 Execution + Environment。需要数据：当前轨迹中三类信号各自命中率
+- [ ] **编排定义本身**就是"预期行为图"，可以用作 Loop 检测的 ground-truth baseline——比 Signals 论文用的"sequence analysis"更精确
+- [ ] **τ-bench 的 1.52× 效率数字不能直接外推**到自己的场景——需要在自己的轨迹池上做小规模标注实验复现
 - [ ] **Successful 轨迹审查**应作为独立 KPI（不只看失败率）：每周从成功轨迹中按 Signals 抽样 N 条人工 review，跟踪"隐性问题发现数"
 
 ---
 
 ## 8. 一句话定位
 
-> **Signals 是综述的主线论文：首次把"无模型调用的轨迹分诊"系统化，提供清晰的 2×2 分类框架和扎实的 τ-bench 实证（82% informativeness, 1.52× 效率，且在成功轨迹中也有 66.7% 命中）。但论文最关键的检测器实现、聚合公式、生产复现性、与 LLM-as-Judge 上界的对比全部未公开，使其更接近"工程方法论 + 概念验证" 而非"开箱即用的方案"。KWeaver 应**继承其分类法和"非质量分"立场**，但**自研所有检测器与聚合逻辑**。**
+> **Signals 是综述的主线论文：首次把"无模型调用的轨迹分诊"系统化，提供清晰的 2×2 分类框架和扎实的 τ-bench 实证（82% informativeness, 1.52× 效率，且在成功轨迹中也有 66.7% 命中）。但论文最关键的检测器实现、聚合公式、生产复现性、与 LLM-as-Judge 上界的对比全部未公开，使其更接近"工程方法论 + 概念验证" 而非"开箱即用的方案"。落地方应**继承其分类法和"非质量分"立场**，但**自研所有检测器与聚合逻辑**。**
