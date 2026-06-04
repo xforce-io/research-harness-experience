@@ -18,7 +18,7 @@
 | **L1 信号分诊** | 不靠昂贵 LLM 评估,用行为模式 / 正则 / 拓扑 / 小代理低成本筛出高复盘价值轨迹 | Signals [1]、AgentSeer [6]、Trajectory Guard [9]、Sentinel [10]、Near-Miss [11] |
 | **L2 数据转化** | 把失败 / 带摩擦轨迹重写为偏好数据(DPO/RLHF) | AgentHER [2]、TSR [3] |
 | **L3 模型迭代** | 对齐 → 部署 → 产生新轨迹 → 回到 L0 | (闭环) |
-| **横切·评估范式** | 重量级语义评估对照组(留给分诊后的小子集);含轻量 within-trace 根因定位 | Agent-as-a-Judge [7]、TIDE/TRACE [8]、MASPrism [17] |
+| **横切·评估范式** | 重量级语义评估对照组(留给分诊后的小子集);含轻量 within-trace 根因定位 | Agent-as-a-Judge [7]、TIDE/TRACE [8]、MASPrism [17]、AgenTracer [18] |
 | **off-axis·Harness 自演化** | 训练 / 推理期的 harness 自动演化方法论(不在四层栈内,作对照) | AHE [12]、AgentDebug [13]、Autodata [14]、AEVO [15] |
 
 > **工作论点(详见 `.researcher/thesis.md`)**:部署后 agent 改进的瓶颈不是模型能力或评估精度,而是"轨迹流 → 偏好数据"之间缺失的桥;这座桥最好按上述四层栈搭建,且 L1 分诊应以非语义、规则化 / 小代理检测器为主,而非逐轨迹 LLM-as-Judge。
@@ -46,5 +46,6 @@
 | 15 | AEVO: Harnessing Agentic Evolution | off-axis | P2 | ✅ |
 | 16 | SWE-PRM: Course-Correcting SWE Agents with PRMs | off-axis (in-flight 过程监督) | P2 | ✅ |
 | 17 | MASPrism: Lightweight Failure Attribution (prefill-stage signals) | 评估范式 (within-trace attribution) | P2 | ✅ |
+| 18 | AgenTracer: Who Is Inducing Failure in MAS (trained 8B tracer) | 评估范式 (within-trace attribution) | P2 | ✅ |
 
 > **图例:** ✅ 全文已读 | 🟡 摘要/综述已读 | 🔲 待读
