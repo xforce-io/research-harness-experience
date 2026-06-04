@@ -2,6 +2,9 @@
 # Topic: Post-Deployment Agent Engineering Stack
 # (Observability → Triage → Relabeling → Model Iteration)
 
+meta:
+  language: zh            # output language for all agent prose: zh=简体中文 / en=English
+
 research_questions:
   - id: RQ1
     text: "How can agent trajectories be triaged for high-replay-value (failures, hidden friction, and instructive successes) without per-trajectory LLM-as-Judge calls — i.e. via lightweight signals from interaction, execution, and environment surfaces?"
