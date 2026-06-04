@@ -1,8 +1,8 @@
 # Post-Deployment Agent 工程基建：Research Report
 
-> **Version:** v16 (16 papers)
+> **Version:** v17 (17 papers)
 > **Last Updated:** 2026-06-02
-> **Papers:** [01](notes/01_signals_trajectory_triage.md), [02](notes/02_agenther_hindsight_relabeling.md), [03](notes/03_tsr_trajectory_search_rollouts.md), [04](notes/04_agenttrace_structured_logging.md), [05](notes/05_breaking_observability_tax.md), [06](notes/06_agentseer_agentic_vulnerabilities.md), [07](notes/07_agent_as_a_judge.md), [08](notes/08_tide_trace_diagnostics.md), [09](notes/09_trajectory_guard_a_lightweight_sequence_aware.md), [10](notes/10_policy_invisible_violations_in_llm_based.md), [11](notes/11_near_miss_latent_policy_failure_detection.md), [12](notes/12_agentic_harness_engineering_observability_driven_automatic.md), [13](notes/13_where_llm_agents_fail_and_how.md), [14](notes/14_autodata.md), [15](notes/15_aevo_harnessing_agentic_evolution.md), [16](notes/16_when_agents_go_astray_course_correcting.md)
+> **Papers:** [01](notes/01_signals_trajectory_triage.md), [02](notes/02_agenther_hindsight_relabeling.md), [03](notes/03_tsr_trajectory_search_rollouts.md), [04](notes/04_agenttrace_structured_logging.md), [05](notes/05_breaking_observability_tax.md), [06](notes/06_agentseer_agentic_vulnerabilities.md), [07](notes/07_agent_as_a_judge.md), [08](notes/08_tide_trace_diagnostics.md), [09](notes/09_trajectory_guard_a_lightweight_sequence_aware.md), [10](notes/10_policy_invisible_violations_in_llm_based.md), [11](notes/11_near_miss_latent_policy_failure_detection.md), [12](notes/12_agentic_harness_engineering_observability_driven_automatic.md), [13](notes/13_where_llm_agents_fail_and_how.md), [14](notes/14_autodata.md), [15](notes/15_aevo_harnessing_agentic_evolution.md), [16](notes/16_when_agents_go_astray_course_correcting.md), [17](notes/17_masprism_lightweight_failure_attribution_for_multi.md)
 > **Thesis:** [.researcher/thesis.md](.researcher/thesis.md)
 
 ---
@@ -11,7 +11,7 @@
 
 ## 开篇定位
 
-部署后 agent 改进的瓶颈不是模型能力或评估精度，而是"生产轨迹流 → 偏好/SFT 数据"之间缺失的桥。我们主张这座桥按四层栈搭建——结构化 tracing (L0) → 轻量信号分诊 (L1) → 后见之明重打标 (L2) → 模型迭代 (L3)，每个上层消费下层产物而不重做其工作。中心张力贯穿全部 16 篇：**判断（哪条轨迹/哪一步值得动作）应当尽量机制化、确定化，而非交给逐轨迹的 LLM-judge**——这既是 L1 的成本立场，也是判断层一以贯之的纪律。迄今证据在多数维度支持该立场，但 off-axis 的 LLM-driven 自动化方法（[12]–[16]）持续提供反例，且它们的真实可靠性几乎从不被自审——这正是本报告要追踪的战场。
+部署后 agent 改进的瓶颈不是模型能力或评估精度，而是"生产轨迹流 → 偏好/SFT 数据"之间缺失的桥。我们主张这座桥按四层栈搭建——结构化 tracing (L0) → 轻量信号分诊 (L1) → 后见之明重打标 (L2) → 模型迭代 (L3)，每个上层消费下层产物而不重做其工作。中心张力贯穿全部 17 篇：**判断（哪条轨迹/哪一步值得动作）应当尽量机制化、确定化，而非交给逐轨迹的 LLM-judge**——这既是 L1 的成本立场，也是判断层一以贯之的纪律。迄今证据在多数维度支持该立场，但 off-axis 的 LLM-driven 自动化方法（[12]–[16]）持续提供反例，且它们的真实可靠性几乎从不被自审——这正是本报告要追踪的战场。
 
 ## §1 桥的形状：四层栈 L0→L1→L2→L3 是否成立？
 
@@ -25,7 +25,7 @@
 
 这是 thesis 最强、最可被挑战的主张，也是语料里证据最密集的一节。
 
-**支持轻量信号一侧。** Signals [1] 在 τ-bench 上以非语义规则信号达 82% informativeness、~1.5× 采样效率，且明确"signals 不是 quality scores、不开药方"。非语义检测的可行性被多条独立路线佐证：AgentSeer [6] 走 action-component 图拓扑、Trajectory Guard [9] 走序列 Siamese RNN 小代理（F1 ~0.92，宣称比 LLM-judge 快 17–27×）、Sentinel [10] 走声明式 KG 不变量（acc/F1 0.93）。这些方法各异，但共享"front-line 不调 per-trajectory LLM"的成本立场。
+**支持轻量信号一侧。** Signals [1] 在 τ-bench 上以非语义规则信号达 82% informativeness、~1.5× 采样效率，且明确"signals 不是 quality scores、不开药方"。非语义检测的可行性被多条独立路线佐证：AgentSeer [6] 走 action-component 图拓扑、Trajectory Guard [9] 走序列 Siamese RNN 小代理（F1 ~0.92，宣称比 LLM-judge 快 17–27×）、Sentinel [10] 走声明式 KG 不变量（acc/F1 0.93）。这些方法各异，但共享"front-line 不调 per-trajectory LLM"的成本立场。同一对峙在 failure attribution（"哪一步坏"）任务上由 MASPrism [17] 推到极致：用 SLM 在 prefill 阶段读 trace 时天然算出的两个内部量（token-level NLL + step-to-step attention）定位根因，**两次 prefill、0 output token、6.69× 端到端延迟降**（2.66s vs LLM-judge 基线 A2P 17.82s），Qwen3-0.6B 即可用且跨模型族稳健，在 Who&When-HC / TRAIL-GAIA 上反超 GPT-4o / o3 / Gemini-2.5-Pro 基线——把"front-line 不调 per-trajectory LLM"的立场从 triage 延伸到 attribution。
 
 **LLM-judge 一侧的成本与脆弱性证据（thesis 反例，但恰好支撑 thesis 的成本论证）。** Agent-as-a-Judge [7] 是重量级语义评估的范式样板；其问题在 off-axis 论文里被反复坐实：AgentDebug [13] 把 LLM-judge 用在全部失败轨迹的全部步全部模块，单条 ALFWorld trace 仅 detection 即 40–60 次 GPT-4.1 调用，且换 base 即崩（Llama-3.3-70B All-Correct 32%→6%）；SWE-PRM [16] 把 LLM-judge 搬到执行中途每 5 步无前置门控地触发，开源 PRM 六变体**全部 ≤ base、最差 -20.4 pp**。这些不是 thesis 的反驳，而是 thesis"LLM-judging 在 production scale 经济不可行 / LLM variance 本身有害"的鲜活实证。
 
@@ -63,6 +63,8 @@ thesis 的方法论约束：判断链应把确定性尽量推深；规则可枚�
 
 **支持机制化一侧。** Near-Miss [11] 把判断委托给确定性 Python guard code + 结构化历史搜索，论证"判断准确性本身也可从语义模型转移到结构化代码"。Sentinel [10] 用声明式不变量在动作时判定，并以 policy-in-prompt 对照证明"决定性事实未进上下文 → 任何模型类判定结构性失败"（违规率仅 95.3%→40.7%、跨模型 25%–85% 不一致）。
 
+**确定性谱上的中间形态（本期新增）。** MASPrism [17] 给出 thesis 方法论约束里"判断不可避免依赖 LLM 时，用结构化决策规则包裹"这一中间态的干净实例：它不让 LLM 生成任何 free-form 判词，而是把 LLM 在 prefill 阶段天然算出的内部量（token-NLL、step-attention）喂进**确定性聚合公式**（candidate score = attention 相关性 × NLL 方向性 contrast × multi-symptom consensus），并显式分离两种度量职责——NLL 找 symptom（失败暴露处）、attention 找 source（失败引入处），不混为一谈（与 Signals "signals 不是 quality scores" 同纪律）。论文声称该流程确定（同模型/prompt/参数下重复运行排名不变），位置在 Near-Miss [11] 全规则 oracle 与 Agent-as-a-Judge [7] free-form LLM-judge **之间**。但它也暴露这条中间路线的代价边界：整条 routing 机制建在 attention-as-explanation 上，而该假设本身有争议（论文自引 Jain & Wallace 的"Attention is not Explanation"），§5.3 退守为"routing evidence, not causal estimators"——即 mechanism 越"软"，可审性与可移植性越弱。对我们系统的含义：能枚举规则处仍优先全机制化（[10][11]）；必须依赖 LLM 内部信号处，确定性聚合 + 职责分离是可取形态，但"确定性"应被实测（[17] 仅断言未量化跨 GPU/精度方差），且不能把可争议的内部量当因果证据。
+
 **结构化 > 自由式的直接实证（本期关键新增）。** SWE-PRM [16] 提供了 thesis"结构化决策树优于自由式 prompt"迄今最干净的对照：taxonomy-guided 的 PRM_D（12 类 DETECTED:Yes/No + 证据 + recovery + TASK_STATUS 汇总）+10.6 pp 且步数微降，严格优于 unguided free-form 的 PRM_S（+5.8 pp 但步数 38.6→51.5 暴增）。但同一论文也给出须谨慎吸收的边界：把确定性推到"显式规定下一个动作"的 PRM_DR 反而最差（+4.8 pp）——这与 thesis"drive determinism as deep as possible"是**表面张力而非矛盾**：thesis 主张确定化的是**判定规则**，不是替策略做动作选择；[16] 自身没做这层区分，吸收时不可误用为"反对结构化判断"的证据。
 
 **反例与脆弱性。** Agent-as-a-Judge [7]、AgentDebug [13]、SWE-PRM [16] 都是 free-form / LLM-only 判断的实例，且都展现强 base-model 依赖（换弱模型即崩）。TIDE/TRACE [8] 是 post-hoc 诊断交付人类，SWE-PRM [16] §1/§2.2 显式把自己对立于此类 post-mortem——但其"实时优于事后"成立的前提是"中途反馈是对的"，而它恰恰没度量（见 §7）。SWE-PRM 闭源 PRM 几乎逢窗必判 suboptimal（7.21/7.24，optimal-window ≈0.03）= 近零特异性检测器，提示增益可能来自"周期性强制反思"而非精确归因——这反过来削弱"taxonomy 内容很重要"的强读法，须靠"taxonomy 替换为通用 review 提示"的对照检验（论文未做）。
@@ -85,7 +87,7 @@ thesis 的方法论约束：判断链应把确定性尽量推深；规则可枚�
 
 thesis 在三条主张上自陈可证伪。逐条追踪当前证据与下一步可解争议的观察。
 
-**(a) 轻量信号在真实非 τ-bench 语料上达 >70% informativeness。** 当前唯一正面数字是 Signals [1] 的 82%，但限于 τ-bench 且未独立复现。旁证：Trajectory Guard [9] F1 ~0.92、Sentinel [10] F1 0.93、Near-Miss [11] code-gen 路径 P=R=1.00（但单标注者 ground truth 偏弱）——指标不同维度、不可直接折算为 informativeness。**待决观察：** 在一个非 τ-bench 生产风格语料上跑非语义信号并报 informativeness。状态：未证。
+**(a) 轻量信号在真实非 τ-bench 语料上达 >70% informativeness。** 当前唯一正面数字是 Signals [1] 的 82%，但限于 τ-bench 且未独立复现。旁证：Trajectory Guard [9] F1 ~0.92、Sentinel [10] F1 0.93、Near-Miss [11] code-gen 路径 P=R=1.00（但单标注者 ground truth 偏弱）、MASPrism [17] 在非 τ-bench 的 Who&When / TRAIL 上以 prefill 内部信号做 attribution（HC Top-1 27.59%、GAIA Loc.Acc 0.591）——但这些都是**不同维度的指标**（detection F1 / latent-failure P-R / attribution accuracy），不可直接折算为 informativeness，且 MASPrism 仅在"全失败"基准评测、HC Top-1 绝对值仍 <30%。**待决观察：** 在一个非 τ-bench 生产风格语料上跑非语义信号并报 informativeness。状态：未证。
 
 **(b) L1-triaged 轨迹的 hindsight relabel 跑出对随机采样偏好数据的下游 win rate。** AgentHER [2] 给出 relabel 管线、Near-Miss [11] 给出成功轨迹的可执行 relabel 入口，但**无任何下游训练 win rate 证据**。AHE [12] 的 component ablation（long-term memory externalize +5.6 pp，无需 SFT）甚至从侧面质疑"必须 model-side relabel"。**待决观察：** L1-triaged relabel 数据 vs 随机采样数据的同条件 DPO 对比。状态：未证，且有反向工程对照点。
 
@@ -97,3 +99,4 @@ thesis 在三条主张上自陈可证伪。逐条追踪当前证据与下一步�
 | 版本 | 日期 | 新增论文 | 关键变化 |
 |------|------|---------|---------|
 | v16 | 2026-06-02 | [16] SWE-PRM / When Agents go Astray | 报告首次创建（thesis-anchored 骨架）。[16] 引入"判断层 lifecycle = in-flight/online"新维度，进入 §6（结构化 > 自由式的最干净对照：PRM_D +10.6 严格优于 free-form PRM_S +5.8）与 §7（self-audit 谱最差端，与 [13] 同属 report-neither）；记录与 [11] 的 cross-paper contradiction、一条 taxonomy 扩展提案、一条 charter tension（trace 轴是否覆盖 in-flight course-correction）。 |
+| v17 | 2026-06-02 | [17] MASPrism / Lightweight Failure Attribution | [17] 是 thesis "lightweight signal beats LLM-judge" 在 **failure attribution**（"哪一步坏"）任务上的高质量正例：prefill-only SLM 内部信号（token-NLL 找 symptom + step-attention 路由 source），两次 prefill / 0 output token / 6.69× 延迟降，与 AgentDebug [13] 同任务同基准（Who&When）方法论尖锐对立。进入 §2（轻量信号侧新增 attribution 维度证据）、§6（确定性谱**中间形态**——确定性聚合 over LLM-internal 信号、无 free-form，但 mechanism 建在有争议的 attention-as-explanation 上，是该路线代价边界的实例）、§8(a)（非 τ-bench 语料旁证，但指标维度不同且仅全失败基准）。提一条 taxonomy 扩展提案（within-trace attribution 作 triage/evaluation 之外的独立子任务）入 contradictions.md。无 vs-thesis 矛盾。 |
