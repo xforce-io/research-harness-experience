@@ -1,8 +1,8 @@
 # Post-Deployment Agent 工程基建：Research Report
 
-> **Version:** v18 (18 papers)
-> **Last Updated:** 2026-06-03
-> **Papers:** [01](notes/01_signals_trajectory_triage.md), [02](notes/02_agenther_hindsight_relabeling.md), [03](notes/03_tsr_trajectory_search_rollouts.md), [04](notes/04_agenttrace_structured_logging.md), [05](notes/05_breaking_observability_tax.md), [06](notes/06_agentseer_agentic_vulnerabilities.md), [07](notes/07_agent_as_a_judge.md), [08](notes/08_tide_trace_diagnostics.md), [09](notes/09_trajectory_guard_a_lightweight_sequence_aware.md), [10](notes/10_policy_invisible_violations_in_llm_based.md), [11](notes/11_near_miss_latent_policy_failure_detection.md), [12](notes/12_agentic_harness_engineering_observability_driven_automatic.md), [13](notes/13_where_llm_agents_fail_and_how.md), [14](notes/14_autodata.md), [15](notes/15_aevo_harnessing_agentic_evolution.md), [16](notes/16_when_agents_go_astray_course_correcting.md), [17](notes/17_masprism_lightweight_failure_attribution_for_multi.md), [18](notes/18_agentracer_who_is_inducing_failure_in.md)
+> **Version:** v19 (19 papers)
+> **Last Updated:** 2026-08-05
+> **Papers:** [01](notes/active/01_signals_trajectory_triage.md), [02](notes/active/02_agenther_hindsight_relabeling.md), [03](notes/active/03_tsr_trajectory_search_rollouts.md), [04](notes/active/04_agenttrace_structured_logging.md), [05](notes/active/05_breaking_observability_tax.md), [06](notes/active/06_agentseer_agentic_vulnerabilities.md), [07](notes/active/07_agent_as_a_judge.md), [08](notes/active/08_tide_trace_diagnostics.md), [09](notes/active/09_trajectory_guard_a_lightweight_sequence_aware.md), [10](notes/active/10_policy_invisible_violations_in_llm_based.md), [11](notes/active/11_near_miss_latent_policy_failure_detection.md), [12](notes/active/12_agentic_harness_engineering_observability_driven_automatic.md), [13](notes/active/13_where_llm_agents_fail_and_how.md), [14](notes/active/14_autodata.md), [15](notes/active/15_aevo_harnessing_agentic_evolution.md), [16](notes/active/16_when_agents_go_astray_course_correcting.md), [17](notes/active/17_masprism_lightweight_failure_attribution_for_multi.md), [18](notes/active/18_agentracer_who_is_inducing_failure_in.md), [19](notes/active/19_harness_r1_learning_to_edit_executable.md)
 > **Thesis:** [.researcher/thesis.md](.researcher/thesis.md)
 
 ---
@@ -11,15 +11,15 @@
 
 ## 开篇定位
 
-部署后 agent 改进的瓶颈不是模型能力或评估精度，而是"生产轨迹流 → 偏好/SFT 数据"之间缺失的桥。我们主张这座桥按四层栈搭建——结构化 tracing (L0) → 轻量信号分诊 (L1) → 后见之明重打标 (L2) → 模型迭代 (L3)，每个上层消费下层产物而不重做其工作。中心张力贯穿全部 17 篇：**判断（哪条轨迹/哪一步值得动作）应当尽量机制化、确定化，而非交给逐轨迹的 LLM-judge**——这既是 L1 的成本立场，也是判断层一以贯之的纪律。迄今证据在多数维度支持该立场，但 off-axis 的 LLM-driven 自动化方法（[12]–[16]）持续提供反例，且它们的真实可靠性几乎从不被自审——这正是本报告要追踪的战场。
+部署后 agent 改进的瓶颈不是模型能力或评估精度，而是"生产轨迹流 → 偏好/SFT 数据"之间缺失的桥。我们主张这座桥按四层栈搭建——结构化 tracing (L0) → 轻量信号分诊 (L1) → 后见之明重打标 (L2) → 模型迭代 (L3)，每个上层消费下层产物而不重做其工作。中心张力贯穿全部 19 篇：**判断（哪条轨迹/哪一步值得动作）应当尽量机制化、确定化，而非交给逐轨迹的 LLM-judge**——这既是 L1 的成本立场，也是判断层一以贯之的纪律。迄今证据在多数维度支持该立场，但 off-axis 的 LLM-driven 自动化方法（[12]–[16]、[19]）持续提供反例与替代路径，且其真实可靠性几乎从不被完整自审——这正是本报告要追踪的战场。
 
 ## §1 桥的形状：四层栈 L0→L1→L2→L3 是否成立？
 
 **文献现状。** 四层各有锚点：L0 由 AgentTrace 的结构化日志 schema [4] 与 Breaking the Observability Tax 的低成本遥测 [5] 支撑；L1 由 Signals 的三层信号分类学 [1] 领衔；L2 由 AgentHER 的失败→DPO/RLHF 重打标 [2] 与训练侧的 TSR rollout 选择 [3] 占位；L3 是对齐→部署→新轨迹的闭环。层间消费关系是真实的而非拼凑：Signals 筛出的高价值失败轨迹正是 AgentHER 的天然原料 [1][2]；Near-Miss [11] 检出的 latent failure 自带"绕过策略 vs 合规版"对，可直接成 DPO 负正样本，是 L1→L2 的可执行接口。
 
-**残留张力。** 没有一篇论文端到端验证整条桥；每篇只夯实一层或一段接口。L2→L3 的 hindsight relabel 能否真正跑出下游 win rate 仍是 thesis 可证伪点 (b)（见 §8），当前语料无直接证据。
+**残留张力。** 没有一篇论文端到端验证整条桥；每篇只夯实一层或一段接口。L2→L3 的 hindsight relabel 能否真正跑出下游 win rate 仍是 thesis 可证伪点 (b)（见 §8），当前语料无直接证据。Harness-R1 [19] 另开一条**不改 target 权重、只编 harness** 的旁路（+9.3 pp），与 model-side L2→L3 平行而非替代——桥的形状仍成立，但"改进只能走偏好数据"的单一叙事被削弱 [19: §4.2]。
 
-**对我们系统的含义。** 四层划分作为工程骨架成立，且层间接口已有论文级范例可抄；但"整桥有效"仍是假设，落地需自建端到端度量，不能从单层论文外推。
+**对我们系统的含义。** 四层划分作为工程骨架成立，且层间接口已有论文级范例可抄；但"整桥有效"仍是假设，落地需自建端到端度量，不能从单层论文外推。harness 编辑旁路仅在可重跑沙盒且过 self-audit 后作为 L3 并列选项考虑（见 §7）。
 
 ## §2 L1 的核心立场：front-line 该用轻量信号还是 LLM-judge？
 
@@ -75,13 +75,15 @@ thesis 的方法论约束：判断链应把确定性尽量推深；规则可枚�
 
 这组论文不在四层栈内，但持续压力测试 thesis 的 anti-pattern 判据——"auto-fix loops that do not audit their own reliability"。
 
-**self-audit 严格度谱。** AHE [12]（training-loop-time 改 harness 文件）显式量化 evolve agent 的 fix-prediction（5× random）与 regression-prediction（2× random）准确率；AEVO [15] 有 harness evaluator 只读隔离防 reward hacking、但无 per-edit 预言核对；Autodata [14] 两者均弱、spec gaming 部分绕过。三篇构成 **AHE > AEVO > Autodata** 的自审严格度谱。AgentDebug [13]（inference-time re-rollout）、SWE-PRM [16]（inference-time in-flight 纠偏）与 AgenTracer [18]（attribution → corrective feedback 注入下一轮 rollout）落在谱的最差端：三者都只报 end-to-end delta（[13] +26% relative，[16] +10.6 pp，[18] +4.8∼14.2%），**从不度量纠错反馈本身的命中率**——无法区分"反馈对了"与"强 base 的通用纠偏压力让策略碰巧恢复"。AgenTracer [18] 还独立坐实一条对照：经典 self-refinement（Self-Refine / CRITIC，即便 GPT-4.1 驱动）对复杂 agentic 轨迹无效甚至有害（CRITIC+MaAS+GAIA iter-2/3 各 −4.9% / −5.5%），而其训练化 tracer 的 feedback 单调改善——这佐证"结构化定位优于通用反思"，但因为它同样不审计自身 feedback 的 fix/regression 命中率，"定位价值 vs 反思文本价值"未被隔离（更该比的是"同样用 AgenTracer 的 critical-step 定位但 feedback 由通用模型写"）。
+**self-audit 严格度谱（两轴）。** 原先单轴 **AHE > AEVO > Autodata** 已不够：[19] Harness-R1 引入第二条轴——**proposer 是否 outcome-RL 可训练**。轴 (i) 推理期 falsifiable 合同：AHE [12] 显式量化 evolve agent 的 fix-prediction（5× random）与 regression-prediction（2× random）；AEVO [15] 有 harness evaluator 只读隔离、无 per-edit 预言；Autodata [14] 两者均弱。轴 (ii) 训练期信号接地：Harness-R1 [19] 用冻结 target 重跑的 Δ reward 做 GRPO（K=8），9B outcome-trained engineer 平均 53.6% 超最强 frontier prompted editor（GLM-5.2 48.8%），且 outcome-trained 比 supervised-only 高 7.1 pp——直接支持"编辑是否有效只能由重跑判断，不能由文本合理性判断" [19: §4.2]。但 [19] **无** [12] 式 predicted_fixes/risk_tasks 合同，reward 绑定同批任务（transductive），总 GPU-hour 未披露。AgentDebug [13]、SWE-PRM [16] 与 AgenTracer [18] 仍落在两轴最差端：只报 end-to-end delta（[13] +26% relative，[16] +10.6 pp，[18] +4.8∼14.2%），从不度量纠错反馈命中率。AgenTracer [18] 与 Harness-R1 [19] 独立坐实固定 Self-Refine 有害（[18] CRITIC iter −4.9%/−5.5%；[19] Self-Refine 三 benchmark 平均 −2.5 pp）[18: §5.3; 19: §4.2]。
 
-**SWE-PRM [16] 的独特贡献——一个新的生命周期位置。** 它把失误 taxonomy 从事后诊断搬到执行中途实时纠偏，是 thesis 四层栈未显式覆盖的"判断层放在哪一时刻"对照（online/in-flight，不改策略参数）。它同时暴露：in-flight 弱 LLM 介入不止"没帮上"而是**主动带偏**（开源 PRM_S 把 32B 从 40.0% 拖到 19.6%、patch gen 92.4%→67.6%），把 thesis"LLM variance is harmful"从离线评估推广到在线纠偏。该 lifecycle 维度不属现有 off-axis"harness 自演化"桶——已在本期 contradictions.md 提 taxonomy 扩展供人裁决。
+**Harness-R1 [19] 的独特贡献——可训练的 harness engineer。** 与 [12]/[14]/[15] 的"proposer 参数不更新"相反，[19] 把 failure-conditioned、lifecycle-wide 编辑形式化为在线 RL 问题：失败 packet → 四 hook 可执行 patch → 重跑奖励 → 更新 9B engineer。跨 20 未见目标平均 +7.06 pp；仅 10 条失败生成的 patch 泛化到 1,270 held-out 任务 +8.9±1.5 pp [19: §4.3–4.4]。与 AgentHER [2] 构成**平行改进路径**（改 harness vs relabel target），且可 co-evolve（target SFT 后仍 +5.0 pp）[19: §4.2]——对 thesis 主桥是旁证压力而非否证（见 contradictions.md）。
 
-**残留张力（强增益的归因）。** SWE-PRM 的 +10.6 pp 全来自 C LAUDE -S ONNET-4 监督弱 SWE-AGENT-LM-32B，而 Claude 单独做 policy 即 66.6%——增益究竟是"过程奖励建模"机制还是"强模型能力经 NL guidance 泄漏进弱策略"未被隔离；unified 设定下同模型开源 PRM 全失败，恰指向后者。
+**SWE-PRM [16] 的独特贡献——一个新的生命周期位置。** 它把失误 taxonomy 从事后诊断搬到执行中途实时纠偏，是 thesis 四层栈未显式覆盖的"判断层放在哪一时刻"对照（online/in-flight，不改策略参数）。它同时暴露：in-flight 弱 LLM 介入不止"没帮上"而是**主动带偏**（开源 PRM_S 把 32B 从 40.0% 拖到 19.6%、patch gen 92.4%→67.6%），把 thesis"LLM variance is harmful"从离线评估推广到在线纠偏。
 
-**对我们系统的含义。** 任何 auto-fix（无论 training-loop、inference-time 还是 in-flight）必须以 AHE [12] 的 falsifiable-manifest（predicted_fixes/risk_tasks → 下一轮核对）为最低自证起点；AEVO [15] 的 evaluator 隔离是必要但不充分。off-axis 演化回路成本（AEVO ~3× baseline、SWE-PRM PRM 开销近 10× 单条成本）使其在飞轮初期不引入。
+**残留张力（强增益的归因）。** SWE-PRM 的 +10.6 pp 全来自 C LAUDE -S ONNET-4 监督弱 SWE-AGENT-LM-32B，而 Claude 单独做 policy 即 66.6%——增益究竟是"过程奖励建模"机制还是"强模型能力经 NL guidance 泄漏进弱策略"未被隔离；unified 设定下同模型开源 PRM 全失败，恰指向后者。[19] 的 +9.3 pp 虽有 held-out 泛化，但 same-batch 训练 reward 与未披露的 RL 重跑成本使生产可移植性仍不确定。
+
+**对我们系统的含义。** 生产 auto-fix 应两轴过线：训练/接受信号尽量 outcome-grounded（[19] 方向），推理期仍要 falsifiable 合同（[12] 方向）；AEVO [15] 的 evaluator 隔离是必要但不充分。off-axis 演化回路成本（AEVO ~3× baseline、SWE-PRM PRM 近 10×、[19] K=8×全批重跑未量化）使其在飞轮初期不引入；若引入 [19]，应用 [1] Signals 对失败子集做前置 triage 摊薄重跑。
 
 ## §8 可证伪点追踪
 
@@ -89,7 +91,7 @@ thesis 在三条主张上自陈可证伪。逐条追踪当前证据与下一步�
 
 **(a) 轻量信号在真实非 τ-bench 语料上达 >70% informativeness。** 当前唯一正面数字是 Signals [1] 的 82%，但限于 τ-bench 且未独立复现。旁证：Trajectory Guard [9] F1 ~0.92、Sentinel [10] F1 0.93、Near-Miss [11] code-gen 路径 P=R=1.00（但单标注者 ground truth 偏弱）、MASPrism [17] 在非 τ-bench 的 Who&When / TRAIL 上以 prefill 内部信号做 attribution（HC Top-1 27.59%、GAIA Loc.Acc 0.591）——但这些都是**不同维度的指标**（detection F1 / latent-failure P-R / attribution accuracy），不可直接折算为 informativeness，且 MASPrism 仅在"全失败"基准评测、HC Top-1 绝对值仍 <30%。AgenTracer [18] 在同一非 τ-bench 的 Who&When 上 agent-level 达 63–69%、step-level 仅 20.68%（HC），但它是**训练化 LLM judge**而非非语义信号——对"轻量**信号**达 >70% informativeness"这一可证伪点几乎不构成正面证据，反而提示：在 attribution 这一维度，连训练专用模型的 step-level 精确命中都 <1/4，非语义信号要在生产语料上达到 informativeness 阈值的难度被进一步放大。**待决观察：** 在一个非 τ-bench 生产风格语料上跑非语义信号并报 informativeness。状态：未证。
 
-**(b) L1-triaged 轨迹的 hindsight relabel 跑出对随机采样偏好数据的下游 win rate。** AgentHER [2] 给出 relabel 管线、Near-Miss [11] 给出成功轨迹的可执行 relabel 入口，但**无任何下游训练 win rate 证据**。AHE [12] 的 component ablation（long-term memory externalize +5.6 pp，无需 SFT）甚至从侧面质疑"必须 model-side relabel"。**待决观察：** L1-triaged relabel 数据 vs 随机采样数据的同条件 DPO 对比。状态：未证，且有反向工程对照点。
+**(b) L1-triaged 轨迹的 hindsight relabel 跑出对随机采样偏好数据的下游 win rate。** AgentHER [2] 给出 relabel 管线、Near-Miss [11] 给出成功轨迹的可执行 relabel 入口，但**无任何下游训练 win rate 证据**。AHE [12] 的 component ablation（long-term memory externalize +5.6 pp，无需 SFT）与 Harness-R1 [19] 的 harness-only 路径（+9.3 pp，SFT 后仍 +5.0 pp co-evolve）从侧面质疑"必须 model-side relabel"——两者都是**不改偏好数据飞轮**也能涨点的旁证，但都不替代 (b) 本身的 DPO 对照。**待决观察：** L1-triaged relabel 数据 vs 随机采样数据的同条件 DPO 对比；可选第三臂对照 harness-edit [19]。状态：未证，且反向工程对照点增多。
 
 **(c) 信号驱动 sentinel 采样 >5× 降本不损训练数据质量。** Breaking the Observability Tax [5] 主张该方向但仅摘要级、无可核数字；Sentinel [10] 给出 O(|M|) 低成本判定的可行性下界。**待决观察：** 自建端到端实验测降本倍数与下游数据质量的联合曲线。状态：未证。
 
@@ -101,3 +103,4 @@ thesis 在三条主张上自陈可证伪。逐条追踪当前证据与下一步�
 | v16 | 2026-06-02 | [16] SWE-PRM / When Agents go Astray | 报告首次创建（thesis-anchored 骨架）。[16] 引入"判断层 lifecycle = in-flight/online"新维度，进入 §6（结构化 > 自由式的最干净对照：PRM_D +10.6 严格优于 free-form PRM_S +5.8）与 §7（self-audit 谱最差端，与 [13] 同属 report-neither）；记录与 [11] 的 cross-paper contradiction、一条 taxonomy 扩展提案、一条 charter tension（trace 轴是否覆盖 in-flight course-correction）。 |
 | v17 | 2026-06-02 | [17] MASPrism / Lightweight Failure Attribution | [17] 是 thesis "lightweight signal beats LLM-judge" 在 **failure attribution**（"哪一步坏"）任务上的高质量正例：prefill-only SLM 内部信号（token-NLL 找 symptom + step-attention 路由 source），两次 prefill / 0 output token / 6.69× 延迟降，与 AgentDebug [13] 同任务同基准（Who&When）方法论尖锐对立。进入 §2（轻量信号侧新增 attribution 维度证据）、§6（确定性谱**中间形态**——确定性聚合 over LLM-internal 信号、无 free-form，但 mechanism 建在有争议的 attention-as-explanation 上，是该路线代价边界的实例）、§8(a)（非 τ-bench 语料旁证，但指标维度不同且仅全失败基准）。提一条 taxonomy 扩展提案（within-trace attribution 作 triage/evaluation 之外的独立子任务）入 contradictions.md。无 vs-thesis 矛盾。 |
 | v18 | 2026-06-03 | [18] AgenTracer / Who Is Inducing Failure | [18] 与 [17] 同任务同基准（Who&When）但**相反实现**：trained 8B tracer（Qwen3-8B + 多粒度 GRPO，数据靠 DeepSeek-R1 + counterfactual replay + fault injection 在沙盒造）vs [17] 零训练确定性聚合。**结构暧昧样本**：表面是"小模型胜 frontier judge"（agent-level +18.18%），但"轻量"只在推理端、且替代物仍是 free-form `⟨think⟩` 的随机 LLM judge。进入 §2（lightweight 路线内部 trained-judge vs frozen-signal 分叉 + inference-only 轻量的 caveat）、§6（同任务走相反方向——确定性取决于判定形式不取决于模型尺寸，[18] 是退一步）、§7（self-audit 谱最差端，与 [13][16] 同列：只报 +4.8∼14.2% 不审计 feedback 命中率）、§8(a)（非 τ-bench attribution 数据点，但作训练化 judge 对"非语义信号 >70% informativeness"几乎非正面证据）。无 vs-thesis 矛盾；提一条 taxonomy 扩展提案（强化 [17] 的 within-trace attribution 子桶 + learned-judge vs frozen-mechanistic 子轴）入 contradictions.md。 |
+| v19 | 2026-08-05 | [19] Harness-R1 / Learning to Edit Executable Runtime Harnesses | [19] 把 harness 编辑形式化为**可训练 9B engineer + outcome GRPO**（冻结 target 重跑 Δ reward），与 [12]/[14]/[15] 的"proposer 不更新"分叉。进入 §1（桥的旁路：不改 target 权重也可 +9.3 pp）、§7（self-audit 谱拆两轴——训练期 outcome 接地 vs 推理期 falsifiable 合同；[19] 强于 [14]/[15] 但仍弱于 [12] 的 manifest）、§8(b)（model-side relabel 的必要性再受旁证压力）。与 [18] 独立复现 Self-Refine 有害（−2.5 pp）。两条 contradiction：cross-paper manifest vs outcome-RL；vs-thesis 主路径 model relabel vs harness edit。无 taxonomy 扩展（归入既有 off-axis harness 自演化桶）。 |

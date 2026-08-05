@@ -3,6 +3,7 @@
 # (Observability → Triage → Relabeling → Model Iteration)
 
 meta:
+  topic_oneline: "部署后 agent 改进栈:结构化 tracing → 轻量非语义信号分诊 → 后见之明重打标 → 模型迭代 的四层栈,把生产轨迹流接上对齐管线的偏好/SFT 数据;前线优先轻量信号,而非逐轨迹 LLM-as-Judge。"
   language: zh            # output language for all agent prose: zh=简体中文 / en=English
 
 research_questions:
