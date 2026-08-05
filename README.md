@@ -19,13 +19,19 @@
 | **L2 数据转化** | 把失败 / 带摩擦轨迹重写为偏好数据(DPO/RLHF) | AgentHER [2]、TSR [3] |
 | **L3 模型迭代** | 对齐 → 部署 → 产生新轨迹 → 回到 L0 | (闭环) |
 | **横切·评估范式** | 重量级语义评估对照组(留给分诊后的小子集);含轻量 within-trace 根因定位 | Agent-as-a-Judge [7]、TIDE/TRACE [8]、MASPrism [17]、AgenTracer [18] |
-| **off-axis·Harness 自演化** | 训练 / 推理期的 harness 自动演化方法论(不在四层栈内,作对照) | AHE [12]、AgentDebug [13]、Autodata [14]、AEVO [15] |
+| **off-axis·Harness 自演化** | 训练 / 推理期的 harness 自动演化方法论(不在四层栈内,作对照) | AHE [12]、AgentDebug [13]、Autodata [14]、AEVO [15]、Harness-R1 [19] |
 
-> **工作论点(详见 `.researcher/thesis.md`)**:部署后 agent 改进的瓶颈不是模型能力或评估精度,而是"轨迹流 → 偏好数据"之间缺失的桥;这座桥最好按上述四层栈搭建,且 L1 分诊应以非语义、规则化 / 小代理检测器为主,而非逐轨迹 LLM-as-Judge。
+## 论题
+
+- 部署后改进的瓶颈是**轨迹流 → 偏好/SFT 数据**之间缺失的桥，宜按 L0 结构化 tracing → L1 轻量信号分诊 → L2 后见之明重打标 → L3 模型迭代搭建。
+- L1 应以非语义规则或小代理检测器为主，而非逐轨迹 LLM-as-Judge；最被低估的收益在**成功**轨迹中的隐性摩擦。
+- LLM-judge 仅作分诊后小子集上的深度诊断；判断链应把确定性尽量推深（机制化 oracle / 结构化决策树，拒绝 free-form）。
+- 完整论点与可证伪条件见 [`.researcher/thesis.md`](.researcher/thesis.md)。
 
 ## 论文收录 (Paper Collection)
 
-> 完整索引见 [`papers/README.md`](papers/README.md);论文间关系与阅读优先级见 [`notes/00_research_landscape.md`](notes/00_research_landscape.md)。
+> 完整索引见 [`papers/README.md`](papers/README.md);论文间关系与阅读优先级见 [`notes/00_research_landscape.md`](notes/00_research_landscape.md)。  
+> **Last Updated:** 2026-08-05
 
 | # | 论文 | 研究层 | 优先级 | 笔记 |
 |---|------|--------|--------|------|
@@ -47,5 +53,12 @@
 | 16 | SWE-PRM: Course-Correcting SWE Agents with PRMs | off-axis (in-flight 过程监督) | P2 | ✅ |
 | 17 | MASPrism: Lightweight Failure Attribution (prefill-stage signals) | 评估范式 (within-trace attribution) | P2 | ✅ |
 | 18 | AgenTracer: Who Is Inducing Failure in MAS (trained 8B tracer) | 评估范式 (within-trace attribution) | P2 | ✅ |
+| 19 | Harness-R1: Learning to Edit Executable Runtime Harnesses | off-axis (trained harness engineer) | P2 | ✅ |
 
 > **图例:** ✅ 全文已读 | 🟡 摘要/综述已读 | 🔲 待读
+
+## 深度入口
+
+- 综合地图与论文关系：[`notes/00_research_landscape.md`](notes/00_research_landscape.md)
+- 源索引：[`papers/README.md`](papers/README.md)
+- 工作论点与项目配置：[`.researcher/thesis.md`](.researcher/thesis.md)
