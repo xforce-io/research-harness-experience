@@ -1,6 +1,6 @@
 ---
 zone: active
-tags: []
+tags: [capture_stream]
 pin: false
 score: 0.6850673194614443
 dwell: 1

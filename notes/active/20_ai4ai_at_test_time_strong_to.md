@@ -1,6 +1,6 @@
 ---
 zone: active
-tags: []
+tags: [update_harness, evaluation_protocol]
 pin: false
 score: 0.8
 dwell: 2
