@@ -1,13 +1,13 @@
-# Agent Harness Research — experience loop
+# Experience
 
-本仓是 `research-harness-trace` 的**就地升级**（同一 GitHub 仓库对象，star / issue / 历史保留）。原 mandate 是部署后 tracing → 分诊 → 重打标；现升级为 **experience 闭环**：捕获交互流 → 更新（权重或 harness）→ 用对齐部署的评价验收。
+Silver & Sutton《Welcome to the Era of Experience》把改进介质从人类数据换成 agent 与环境的交互流；姚顺雨《The Second Half》把下半场的瓶颈从新 trainer 换成任务与评价。本仓沿这两点深耕 **experience 闭环**：捕获 → 更新（权重或 harness）→ 评价。
 
-不绑定任何具体产品或厂商。原 19 篇笔记仍是捕获章，并未作废。
+不绑定任何具体产品或厂商。
 
 ## 目录结构 (Directory Structure)
 
 *   `papers/`: 论文索引(`papers/README.md`,按 arXiv ID 维护)。**PDF 原文件不纳入 Git**(见 `.gitignore`)。
-*   `notes/`: 论文 7-Block 深读笔记。`00_research_landscape.md` 是全局研究地图(论文间关系 + 四层栈定位 + 阅读优先级)。
+*   `notes/`: 论文 7-Block 深读笔记。`00_research_landscape.md` 是全局研究地图(论文间关系 + 闭环定位 + 阅读优先级)。
 *   `.researcher/`: 自动化 researcher 的配置——`thesis.md`(工作论点)与 `project.yaml`(研究问题、纳入/排除标准、检索源)。
 
 ## 研究主轴: experience 闭环
@@ -17,8 +17,6 @@
 | **流（捕获）** | schema、轻量分诊、成功轨迹隐性摩擦、哨兵采样 | Signals [1]、AgentTrace [4]、Near-Miss [11] |
 | **更新** | hindsight / 过程信用 → 权重；或编辑 harness 不改 target | AgentHER [2]、Harness-R1 [19]、TRACE turn-credit [23] |
 | **评价** | 搜索与终评分离、同预算采样对照、反馈自审计 | AHE [12]、AI4AI [20]、Rethinking harness eval [21] |
-
-旧四层栈 L0–L3 是「流 + 更新」的展开，现收进闭环，不另立 evolution 仓。
 
 ## 论题
 
@@ -52,12 +50,12 @@
 | 17 | MASPrism: Lightweight Failure Attribution (prefill-stage signals) | 评估范式 (within-trace attribution) | P2 | ✅ |
 | 18 | AgenTracer: Who Is Inducing Failure in MAS (trained 8B tracer) | 评估范式 (within-trace attribution) | P2 | ✅ |
 | 19 | Harness-R1: Learning to Edit Executable Runtime Harnesses | 更新（harness） | P2 | ✅ |
-| 20 | AI4AI at Test-Time (strong-to-weak harness) | 评价 / 更新 | P1 | ✅ 迁入 |
-| 21 | Rethinking the Evaluation of Harness Evolution | 评价 | P0 | ✅ 迁入 |
-| 22 | Sample-efficient learning from agent experience | 更新（蒸馏） | P2 | ✅ 迁入 |
-| 23 | TRACE: Turn-level reward assignment | 更新（过程信用） | P1 | ✅ 迁入 |
+| 20 | AI4AI at Test-Time (strong-to-weak harness) | 评价 / 更新 | P1 | ✅ |
+| 21 | Rethinking the Evaluation of Harness Evolution | 评价 | P0 | ✅ |
+| 22 | Sample-efficient learning from agent experience | 更新（蒸馏） | P2 | ✅ |
+| 23 | TRACE: Turn-level reward assignment | 更新（过程信用） | P1 | ✅ |
 
-> **图例:** ✅ 全文已读 | 🟡 摘要/综述已读 | 🔲 待读 | 迁入 = 从重叠本地 topic 并入，非新开仓
+> **图例:** ✅ 全文已读 | 🟡 摘要/综述已读 | 🔲 待读
 
 ## 深度入口
 

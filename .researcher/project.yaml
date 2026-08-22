@@ -1,4 +1,4 @@
-# project.yaml — experience loop (upgraded in place from trace)
+# project.yaml — experience loop
 meta:
   topic_oneline: "生产 agent 的改进介质是自身交互流：捕获（结构化轨迹+轻量分诊）→ 更新（权重或 harness）→ 对齐部署的评价；前线轻量信号，评价必须拆掉采样假象。"
   language: zh
