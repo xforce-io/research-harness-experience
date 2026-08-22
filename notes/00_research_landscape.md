@@ -1,6 +1,8 @@
-# 研究地图：Post-Deployment Agent 工程基建
+# 研究地图：experience 闭环（由 Post-Deployment Agent 工程基建就地升级）
 
 > 本文件是所有论文之间关系的全局鸟瞰图，随着阅读推进持续更新。
+>
+> **2026-08-22 升级注记：** 本仓从「只观测/分诊」升级为捕获 → 更新 → 评价。原 [01]–[19] 仍是捕获章。新迁入（非新开仓）：[20] AI4AI、[21] Rethinking harness eval（评价）；[22] Experience distillation、[23] TRACE turn-credit（更新）。Signals 仍以 [01] 为主证据，不重复收录 training 仓那份。
 
 ## 拼图全景 (The Big Picture)
 

@@ -1,37 +1,27 @@
-# project.yaml — structured project soul
-# Topic: Post-Deployment Agent Engineering Stack
-# (Observability → Triage → Relabeling → Model Iteration)
-
+# project.yaml — experience loop (upgraded in place from trace)
 meta:
-  topic_oneline: "部署后 agent 改进栈:结构化 tracing → 轻量非语义信号分诊 → 后见之明重打标 → 模型迭代 的四层栈,把生产轨迹流接上对齐管线的偏好/SFT 数据;前线优先轻量信号,而非逐轨迹 LLM-as-Judge。"
-  language: zh            # output language for all agent prose: zh=简体中文 / en=English
+  topic_oneline: "生产 agent 的改进介质是自身交互流：捕获（结构化轨迹+轻量分诊）→ 更新（权重或 harness）→ 对齐部署的评价；前线轻量信号，评价必须拆掉采样假象。"
+  language: zh
 
 research_questions:
   - id: RQ1
-    text: "How can agent trajectories be triaged for high-replay-value (failures, hidden friction, and instructive successes) without per-trajectory LLM-as-Judge calls — i.e. via lightweight signals from interaction, execution, and environment surfaces?"
+    text: "How can production agent trajectories be captured and triaged into a learnable experience stream without per-trajectory LLM-as-Judge — via schema, lightweight signals, and sentinel sampling?"
   - id: RQ2
-    text: "How can failed or friction-laden agent trajectories be hindsight-relabeled into preference / SFT data suitable for DPO/RLHF, and what taxonomy of failure modes determines whether a trajectory is recoverable?"
+    text: "How should a triaged experience stream update the system — hindsight relabel / process credit into weights, versus editing the executable harness without touching target weights?"
   - id: RQ3
-    text: "What logging / trace schema is needed to support both signal-based triage and hindsight relabeling — covering operational, cognitive, contextual, user-interaction, and system-resource surfaces?"
-  - id: RQ4
-    text: "How can observability cost (the 'observability tax') be controlled in production agent systems via dynamic sampling, sentinel triggers, and topology-aware telemetry — and how do those mechanisms compose with signal-based triage?"
-  - id: RQ5
-    text: "How do non-semantic signal methods (phrase patterns, sequence analysis, action-component graphs) compare with — and complement — semantic evaluation paradigms (LLM-as-Judge, Agent-as-a-Judge, TIDE/TRACE) for finding learnable trajectories?"
-  - id: RQ6
-    text: "Are there agent-trajectory failure modes (esp. for orchestrated multi-step execution with weak user-facing dialog) that current signal taxonomies miss, and what new signal classes does a production agent system need to define beyond the published literature?"
+    text: "How must evaluation be designed so harness or policy gains are not confounded with extra test-time sampling, and so feedback loops audit their own reliability?"
 
 inclusion_criteria:
-  - "Must address one of RQ1–RQ6, ideally with an implementable mechanism (detector, schema, pipeline, or relabeling rule), not just a position."
-  - "Must report enough method detail to be at least partially reproducible: input schema, decision rule, or quantitative threshold/effect size."
-  - "Trace-level or trajectory-level granularity is preferred over single-turn or token-level work."
-  - "Production-deployment angle (cost, drift, schema versioning, latency) earns extra weight."
+  - "Must address RQ1–RQ3 with an implementable mechanism (detector, schema, relabel rule, harness edit, or eval protocol), not just a position."
+  - "Trajectory- or loop-level granularity; production or deployment-aligned metrics earn extra weight."
+  - "Harness-evolution work must contrast against a sampling/TTS baseline or held-out split."
 
 exclusion_criteria:
   - "Pure benchmark papers without a methodological contribution."
   - "Pure LLM-as-Judge papers that ignore cost-of-judging at production scale."
-  - "Theoretical / survey papers that don't introduce an implementable framing."
-  - "Token-level or single-turn evaluation work with no trajectory-level extension."
-  - "Papers focused solely on training-time rollout selection with no deployment-time analogue (TSR-class is admitted, but only when contrasted with deployment-time triage)."
+  - "Generic agentic RL recipes, scale-only narratives, world models, inference serving, or decision-orchestration work (other pillars / first-half)."
+  - "Token-level or single-turn evaluation with no trajectory-level extension."
+  - "Auto-fix loops that report only end-to-end delta and never audit feedback reliability — admitted only as negative controls."
 
 sources:
   - kind: arxiv
@@ -39,41 +29,27 @@ sources:
       - "agent trajectory triage"
       - "agent trajectory sampling preference data"
       - "hindsight experience replay LLM agent"
-      - "agent trajectory relabeling RLHF DPO"
       - "agent observability tracing"
       - "agent trace schema structured logging"
-      - "LLM agent failure mode taxonomy"
-      - "agent-as-a-judge"
-      - "tool-use agent evaluation diagnostic"
+      - "harness self-improvement evaluation"
+      - "agent harness evolution test-time"
+      - "turn-level credit assignment tool-use agent"
+      - "process supervision vs outcome RL agent"
     priority: high
   - kind: semantic_scholar
     queries:
       - "agent trajectory observability"
-      - "implicit feedback signals agent dialogue"
-      - "topology-aware sampling distributed tracing"
+      - "harness evolution evaluation sampling baseline"
     priority: normal
-  # NOTE: agent originally drafted a kind: ieee source which the schema
-  # rejected. IEEE-paywalled material (e.g. "Breaking the Observability Tax")
-  # is folded into the queries above; the read stage cannot fetch IEEE PDFs
-  # directly under the current Plan-2 toolset.
 
 paper_axes:
-  - id: layer
-    name: "Stack layer"
+  - id: loop_stage
+    name: "Experience-loop stage"
     values:
-      - "L0_observability_infra"
-      - "L1_signal_triage"
-      - "L2_data_relabeling"
-      - "L3_model_iteration"
-      - "cross_evaluation"
-  - id: signal_kind
-    name: "Signal source"
-    values:
-      - "interaction"
-      - "execution"
-      - "environment"
-      - "cognitive"
-      - "topological"
+      - "capture_stream"
+      - "update_weights"
+      - "update_harness"
+      - "evaluation_protocol"
   - id: cost_profile
     name: "Compute cost regime"
     values:
@@ -87,12 +63,6 @@ paper_axes:
       - "training_time"
       - "deployment_time"
       - "online"
-  - id: deployability
-    name: "Production-readiness signal"
-    values:
-      - "open_implementation"
-      - "method_only"
-      - "concept_only"
 
 cadence:
   default_interval_days: 7

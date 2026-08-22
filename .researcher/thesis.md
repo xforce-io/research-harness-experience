@@ -1,45 +1,42 @@
 # Thesis
 
-> 工作论点存于此。Researcher 每轮读取它,据以判断新材料是 支持 / 扩展 / 挑战 / 正交 于你当前的观点。Researcher 只会*报告*矛盾,绝不编辑本文件——论点的修改永远由你决定。
+> 本仓由 `research-harness-trace` **就地升级**为 experience 闭环（同一 GitHub 仓库对象）。Researcher 每轮读取本文件以判断新材料是支持 / 扩展 / 挑战 / 正交。Researcher 只报告矛盾，不编辑本文件。
 
 ## Working thesis
 
-部署后 agent 改进的瓶颈,不在模型能力或评估精度,而在生产 agent 产出的**轨迹流**与对齐管线消费的**偏好 / SFT 数据**之间缺失的那座桥。这座桥最好搭成四层栈——结构化 tracing(L0) → 轻量信号分诊(L1) → 后见之明重打标(L2) → 模型迭代(L3)——每个上层消费下层的产物,而不重做下层的工作。
+生产 agent 的改进介质应是**自身交互流**，而不是更多人类语料或新 trainer：捕获（结构化轨迹 + 轻量分诊）→ 更新（权重 **或** harness）→ 用对齐部署的评价验收。Sutton/Silver 的 Era of Experience 给出介质换代；姚顺雨的下半场给出瓶颈换位——评价与任务定义重于再发明 recipe。
 
-L1 分诊应主要用**非语义的、规则化或小代理(small-surrogate)检测器**,作用于 交互 / 执行 / 环境 三类面,而非逐轨迹的 LLM-as-Judge 调用;两者的成本比使得 LLM 评判在生产规模上经济上不可行,而 Signals 论文在 τ-bench 上以 ~1.5× 采样效率达到 82% informativeness,是一个真实(尽管未被复现)的证明:轻量信号能达到有用的工作点。信号分诊**最被低估的收益在*成功*轨迹上**:约三分之二"任务完成"的轨迹仍含可学习的隐性摩擦(策略违规、低效工具使用),而这恰是生产 agent 系统在严重失败已罕见后、持续改进模型所需的区间。
+**流（原 L0–L1，捕获章）。** 部署后改进的第一缺口仍是轨迹流与可学习信号之间的桥。L1 分诊应主要用非语义的、规则化或小代理检测器，作用于交互 / 执行 / 环境三类面，而非逐轨迹 LLM-as-Judge。Signals 在 τ-bench 上以 ~1.5× 采样效率达到 82% informativeness（未独立复现）是工作点证明。最被低估的收益在**成功**轨迹：约三分之二「任务完成」仍含可学习隐性摩擦。Schema（L0）是沉默门槛：操作 + 认知 + 上下文不够，还必须有用户话语与系统资源状态。观测成本用信号触发的哨兵升档，而非均匀降采样。LLM-judge 只做分诊后小子集上的深度诊断。判断链把确定性尽量推深：规则可枚举时机制化 oracle 优于 LLM；不可约语义谓词须包进窄 yes/no 决策树，拒绝 free-form「这条轨迹好不好」。
 
-Schema 设计(L0)是沉默的门槛约束:AgentTrace 式的 操作 + 认知 + 上下文 三类面是必要但不充分的——一个完整的 trace schema 还必须捕获用户交互话语与系统资源状态,否则 L1 的 Interaction 与 Environment 信号根本无法计算。可观测性成本应由**拓扑感知的哨兵采样**控制——用 L1 信号作为升档触发器,而非靠均匀降采样。
+**更新。** 分诊后的轨迹有两条合法更新路径，平行不互斥：(a) hindsight relabel / 过程侧信用进入偏好或 RL；(b) 不改 target 权重、编辑可执行 harness（Harness-R1）。未分诊的 raw dump 或纯轨迹级 outcome 不够。过程监督若出现，须能对照 outcome-only；过密的 turn 信号可以引入噪声。通用 agentic RL recipe、scale-only、未接地的偏好优化**不是**本支柱的 inclusion。
 
-业界主流的替代方案——Agent-as-a-Judge / LLM-as-Judge——最好被当作一个*互补的*深度诊断工具,运行在已被 L1 分诊出的小子集上,而**绝非**前线过滤器。基于信号的分诊与 LLM 评判并非在同一指标上竞争:分诊衡量采样 informativeness,评判衡量评估精度。把二者混为一谈是文献中反复出现的修辞错误,我们将明确抵制。
+**评价。** harness 或策略的表观涨点必须在搜索与终评分离、且与同预算采样对照后才算改进。Rethinking Harness Evolution Eval 表明 evolved harness 在 held-out 上平均仅 +0.6、表观收益常可被多采样解释。不审计反馈自身可靠性的自动修复闭环（只报端到端 Δ）降权。
 
-本论点至少在三条主张上可证伪:(a) 轻量信号在一个真实的非 τ-bench 语料上达到 >70% informativeness;(b) 对 L1 分诊出的轨迹做后见之明重打标,相对随机采样的偏好数据产生可测量的下游胜率提升;(c) 信号驱动的哨兵采样以有意义的倍数(如 >5×)降低可观测性成本,且不损害下游训练数据质量。任一条上的反证据都应迫使重构。
-
-**判断层的方法论约束。** 判断链应把确定性尽可能深地推入树中。当判断规则可枚举时(如 可枚举的前置条件规则 → 必需证据集),机制化的 oracle 严格优于 LLM-judge——原因不是成本,而是 **LLM 方差本身有害于生产级判断**,无论其均值精度如何。当判断不可避免地依赖 LLM 时(真正不可约的语义谓词,如记忆幻觉或反思误判),LLM 必须被包进一个由窄 yes/no 谓词构成的结构化决策树,带显式聚合、阈值与弃权条件;*自由形式*的"这条轨迹好不好?"式 prompting 作为一种判断形式被拒绝,即便它跑分不错。这与 L1 的轻量信号纪律是同一原则,只是应用得更深一层——不是新原则。
+可证伪：
+- (流) 轻量信号在非 τ-bench 语料上达不到 >70% informativeness；或未分诊端到端 RL 在成本归一化生产指标上打赢闭环。
+- (更新) L1 子集上的 hindsight 相对随机偏好无下游胜率；或 SWE-bench 类等预算下 outcome-only 匹配过程监督。
+- (评价) 下一代通用模型不改 env/eval 即系统性压过 harness 改进；或人类偏好数据持续比接地 outcome 更便宜更稳。
 
 ## Taste
 
-- **前线过滤偏好轻量、可部署的信号,而非 LLM-judge 方案。** 重量级方法仅作为上界、或作为分诊下游的深度诊断工具被接纳。
-- **偏好机制性解释,而非相关性研究。** 一篇定义了检测器、阈值或 schema 字段的论文,胜过一篇报告端到端指标却不暴露机制的论文。
-- **方法的可复现性比数字的可复现性更重要。** 公开的阈值、短语表、聚合公式比 benchmark 增量更有价值——benchmark 不会迁移,机制会。
-- **生产级细节赢得优先级。** 成本、延迟、漂移、版本管理、多语言鲁棒性、schema 演化是一等关切,而非附录材料。
-- **轨迹级与管线级工作优于单轮工作。** 多数 agent 失败只在多轮或多次工具调用间可见;只检查单步的方法先验可疑。
-- **成功轨迹的后见之明是一项特性,而非可有可无的猎奇。** 只挖失败的方法,低估了成熟系统中最大的可学习面。
+- 前线过滤偏好轻量、可部署的信号，而非 LLM-judge。
+- 偏好机制性解释与可复现的检测器 / schema / 评价协议。
+- 生产细节（成本、漂移、schema 版本）是一等关切。
+- 轨迹级与闭环级优于单轮；成功轨迹的隐性摩擦是特性。
+- 更新必须说明改的是权重还是 harness；评价必须能拆掉采样假象。
 
 ## Anti-patterns
 
-- **只有 benchmark、缺乏底层方法或检测器设计的论文。**
-- **纯 LLM-as-Judge 论文,无视逐轨迹评判成本**,从而隐含假设无限评估预算。
-- **不引入新框架或可实现分类法的综述 / 立场论文。** 改名的分类法不是贡献。
-- **token 级或单轮评估工作**伪装成 agent 评估,无轨迹级扩展。
-- **"黑箱复合分数"**:聚合信号却不披露权重、阈值或消融——对部署不可执行。
-- **静态规则论文**:不承认漂移、多语言现实或检测器版本管理——生产盲区。
-- **把采样 informativeness 与判断精度混为一谈的论文**——见上文论点段;这是我们不会吸收的范畴错误。
-- **不审计自身可靠性的 自动反馈 / 自动修复闭环。** 只报告端到端成功增量,却不测量*反馈本身*的修复预测或回归预测精度。AHE [12] 两者都报(修复 ≈ 5× random、回归 ≈ 2× random);AgentDebug [13] 都不报。此区间的端到端增益无法区分"反馈对了"与"base 模型在噪声反馈下自行恢复"——而后者远比作者暗示的更常见。
+- 纯 benchmark、无方法或检测器。
+- 纯 LLM-as-Judge 且无视逐轨迹成本。
+- 通用 agentic RL / scale-only / world model / serving / 决策编排——归其他支柱或上半场。
+- 把采样 informativeness 与判断精度混为一谈。
+- 不审计反馈可靠性的自动修复闭环。
+- 搜索与终评共用同一 benchmark 却宣称 harness 进化。
 
 ## Examples
 
-- 好的纳入(典范):`notes/01_signals_trajectory_triage.md`——定义了 2×2 分类法与 7 类信号,在真实测试床上报告 informativeness,并对其未发布的检测器诚实。
-- 好的纳入(互补):`notes/02_agenther_hindsight_relabeling.md`——显式的失败模式分类法与重打标管线;L1 分诊的天然 L2 消费者。
-- 好的纳入(基础设施):`notes/04_agenttrace_structured_logging.md` 与 `notes/05_breaking_observability_tax.md`——L1 离不开的 schema 与成本控制原语。
-- 边界 / 对照案例:`notes/07_agent_as_a_judge.md` 与 `notes/08_tide_trace_diagnostics.md`——作为深度诊断 / 评估对照组保留,而非前线分诊。
-- 生命周期相邻(作对照保留):`notes/03_tsr_trajectory_search_rollouts.md`——训练期 rollout 选择;作为部署期分诊的训练侧镜像有价值,但不可直接替代。
+- 流：`notes/01_signals_trajectory_triage.md`、`notes/04_agenttrace_structured_logging.md`、`notes/11_near_miss_latent_policy_failure_detection.md`
+- 更新：`notes/02_agenther_hindsight_relabeling.md`、`notes/19_harness_r1_learning_to_edit_executable.md`、`notes/23_trace_turn_level_reward_assignment_via.md`
+- 评价：`notes/12_agentic_harness_engineering_observability_driven_automatic.md`、`notes/21_rethinking_the_evaluation_of_harness_evolution.md`、`notes/20_ai4ai_at_test_time_strong_to.md`
+- 对照（非前线）：`notes/07_agent_as_a_judge.md`
