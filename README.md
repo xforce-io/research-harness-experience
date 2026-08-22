@@ -1,6 +1,8 @@
-# Agent Harness Research
+# Agent Harness Research — experience loop
 
-聚焦 **agent harness / post-deployment agent 工程** 的学术研究仓:论文索引 + 深读笔记 + 研究地图。关注生产部署后的 agent 轨迹可观测性(Observability)、信号分诊(Signal Triage)、后见之明重打标(Hindsight Relabeling)与数据飞轮(Data Flywheel),不绑定任何具体产品或厂商。
+本仓是 `research-harness-trace` 的**就地升级**（同一 GitHub 仓库对象，star / issue / 历史保留）。原 mandate 是部署后 tracing → 分诊 → 重打标；现升级为 **experience 闭环**：捕获交互流 → 更新（权重或 harness）→ 用对齐部署的评价验收。
+
+不绑定任何具体产品或厂商。原 19 篇笔记仍是捕获章，并未作废。
 
 ## 目录结构 (Directory Structure)
 
@@ -8,24 +10,20 @@
 *   `notes/`: 论文 7-Block 深读笔记。`00_research_landscape.md` 是全局研究地图(论文间关系 + 四层栈定位 + 阅读优先级)。
 *   `.researcher/`: 自动化 researcher 的配置——`thesis.md`(工作论点)与 `project.yaml`(研究问题、纳入/排除标准、检索源)。
 
-## 研究主轴:Post-Deployment Agent Engineering Stack
+## 研究主轴: experience 闭环
 
-一条四层栈,外加横切的评估范式对照组:
-
-| 层 | 关注点 | 代表论文 |
+| 节 | 关注点 | 代表论文 |
 |----|--------|---------|
-| **L0 基础设施** | 结构化 trace schema、低成本遥测 | AgentTrace [4]、Breaking the Observability Tax [5] |
-| **L1 信号分诊** | 不靠昂贵 LLM 评估,用行为模式 / 正则 / 拓扑 / 小代理低成本筛出高复盘价值轨迹 | Signals [1]、AgentSeer [6]、Trajectory Guard [9]、Sentinel [10]、Near-Miss [11] |
-| **L2 数据转化** | 把失败 / 带摩擦轨迹重写为偏好数据(DPO/RLHF) | AgentHER [2]、TSR [3] |
-| **L3 模型迭代** | 对齐 → 部署 → 产生新轨迹 → 回到 L0 | (闭环) |
-| **横切·评估范式** | 重量级语义评估对照组(留给分诊后的小子集);含轻量 within-trace 根因定位 | Agent-as-a-Judge [7]、TIDE/TRACE [8]、MASPrism [17]、AgenTracer [18] |
-| **off-axis·Harness 自演化** | 训练 / 推理期的 harness 自动演化方法论(不在四层栈内,作对照) | AHE [12]、AgentDebug [13]、Autodata [14]、AEVO [15]、Harness-R1 [19] |
+| **流（捕获）** | schema、轻量分诊、成功轨迹隐性摩擦、哨兵采样 | Signals [1]、AgentTrace [4]、Near-Miss [11] |
+| **更新** | hindsight / 过程信用 → 权重；或编辑 harness 不改 target | AgentHER [2]、Harness-R1 [19]、TRACE turn-credit [23] |
+| **评价** | 搜索与终评分离、同预算采样对照、反馈自审计 | AHE [12]、AI4AI [20]、Rethinking harness eval [21] |
+
+旧四层栈 L0–L3 是「流 + 更新」的展开，现收进闭环，不另立 evolution 仓。
 
 ## 论题
 
-- 部署后改进的瓶颈是**轨迹流 → 偏好/SFT 数据**之间缺失的桥，宜按 L0 结构化 tracing → L1 轻量信号分诊 → L2 后见之明重打标 → L3 模型迭代搭建。
-- L1 应以非语义规则或小代理检测器为主，而非逐轨迹 LLM-as-Judge；最被低估的收益在**成功**轨迹中的隐性摩擦。
-- LLM-judge 仅作分诊后小子集上的深度诊断；判断链应把确定性尽量推深（机制化 oracle / 结构化决策树，拒绝 free-form）。
+- 改进介质是自身交互流，不是更多人类数据或新 trainer。
+- 前线轻量信号；更新可走权重或 harness；评价必须拆掉采样假象。
 - 完整论点与可证伪条件见 [`.researcher/thesis.md`](.researcher/thesis.md)。
 
 ## 论文收录 (Paper Collection)
@@ -53,9 +51,13 @@
 | 16 | SWE-PRM: Course-Correcting SWE Agents with PRMs | off-axis (in-flight 过程监督) | P2 | ✅ |
 | 17 | MASPrism: Lightweight Failure Attribution (prefill-stage signals) | 评估范式 (within-trace attribution) | P2 | ✅ |
 | 18 | AgenTracer: Who Is Inducing Failure in MAS (trained 8B tracer) | 评估范式 (within-trace attribution) | P2 | ✅ |
-| 19 | Harness-R1: Learning to Edit Executable Runtime Harnesses | off-axis (trained harness engineer) | P2 | ✅ |
+| 19 | Harness-R1: Learning to Edit Executable Runtime Harnesses | 更新（harness） | P2 | ✅ |
+| 20 | AI4AI at Test-Time (strong-to-weak harness) | 评价 / 更新 | P1 | ✅ 迁入 |
+| 21 | Rethinking the Evaluation of Harness Evolution | 评价 | P0 | ✅ 迁入 |
+| 22 | Sample-efficient learning from agent experience | 更新（蒸馏） | P2 | ✅ 迁入 |
+| 23 | TRACE: Turn-level reward assignment | 更新（过程信用） | P1 | ✅ 迁入 |
 
-> **图例:** ✅ 全文已读 | 🟡 摘要/综述已读 | 🔲 待读
+> **图例:** ✅ 全文已读 | 🟡 摘要/综述已读 | 🔲 待读 | 迁入 = 从重叠本地 topic 并入，非新开仓
 
 ## 深度入口
 
