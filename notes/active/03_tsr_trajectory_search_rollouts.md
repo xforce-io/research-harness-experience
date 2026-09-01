@@ -1,9 +1,9 @@
 ---
 zone: active
-tags: [update_weights]
+tags: ["update_weights"]
 pin: false
-score: 0.13990208078335375
-dwell: 1
+score: 0.11182978723404255
+dwell: 2
 ---
 # 论文阅读笔记：《TSR: Trajectory-Search Rollouts for Multi-Turn RL of LLM Agents》
 

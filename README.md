@@ -16,9 +16,9 @@ Silver & Sutton《Welcome to the Era of Experience》把改进介质从人类数
 |----|--------|---------|
 | **G1 捕获** | L0 schema、L1 轻量分诊、成功轨迹隐性摩擦 | Signals [1]、AgentTrace [4]、Near-Miss [11] |
 | **G2 更新 A** | 能力/偏好错 → 改权重 | AgentHER [2]、TRACE [23]、Experience distillation [22] |
-| **G3 更新 B** | 基板/runtime 错 → 改 harness | Harness-R1 [19]、AHE [12]、AI4AI [20] |
+| **G3 更新 B** | 基板/runtime 错 → 改 harness | Harness-R1 [19]、Recuris [24]、SKILLSTATE [25]、AHE [12] |
 | **G4 分流** | A 与 B 并列可叠；in-flight 非更新 | [2] vs [19]；SWE-PRM [16] |
-| **G5 评价门** | 搜索≠终评、同预算采样、反馈自审计 | Rethinking harness eval [21]、AHE [12] |
+| **G5 评价门** | 搜索≠终评、同预算采样、反馈自审计 | Rethinking harness eval [21]、AHE [12]、Recuris [24] |
 
 ## 论题
 
@@ -27,7 +27,7 @@ Silver & Sutton《Welcome to the Era of Experience》把改进介质从人类数
 ## 论文收录 (Paper Collection)
 
 > 完整索引见 [`papers/README.md`](papers/README.md);论文间关系与阅读优先级见 [`notes/00_research_landscape.md`](notes/00_research_landscape.md)。  
-> **Last Updated:** 2026-08-23
+> **Last Updated:** 2026-09-01
 
 | # | 论文 | 研究层 | 优先级 | 笔记 |
 |---|------|--------|--------|------|
@@ -54,6 +54,8 @@ Silver & Sutton《Welcome to the Era of Experience》把改进介质从人类数
 | 21 | Rethinking the Evaluation of Harness Evolution | 评价 | P0 | ✅ |
 | 22 | Sample-efficient learning from agent experience | 更新 A | P2 | ✅ |
 | 23 | TRACE: Turn-level reward assignment | 更新 A | P1 | ✅ |
+| 24 | Recuris: Recursive Experiential–Working Memory Evolution | 更新 B / 评价门 | P1 | ✅ |
+| 25 | SKILLSTATE: Scalable Long-Horizon Agent Skills | 更新 B（执行底物）/ L0 | P1 | ✅ |
 
 > **图例:** ✅ 全文已读 | 🟡 摘要/综述已读 | 🔲 待读
 

@@ -1,8 +1,8 @@
 # Experience 闭环：Research Report
 
-> **Version:** v21 (23 papers)
-> **Last Updated:** 2026-08-23
-> **Papers:** [01](notes/active/01_signals_trajectory_triage.md), [02](notes/active/02_agenther_hindsight_relabeling.md), [03](notes/active/03_tsr_trajectory_search_rollouts.md), [04](notes/active/04_agenttrace_structured_logging.md), [05](notes/active/05_breaking_observability_tax.md), [06](notes/active/06_agentseer_agentic_vulnerabilities.md), [07](notes/active/07_agent_as_a_judge.md), [08](notes/active/08_tide_trace_diagnostics.md), [09](notes/active/09_trajectory_guard_a_lightweight_sequence_aware.md), [10](notes/active/10_policy_invisible_violations_in_llm_based.md), [11](notes/active/11_near_miss_latent_policy_failure_detection.md), [12](notes/active/12_agentic_harness_engineering_observability_driven_automatic.md), [13](notes/active/13_where_llm_agents_fail_and_how.md), [14](notes/active/14_autodata.md), [15](notes/active/15_aevo_harnessing_agentic_evolution.md), [16](notes/active/16_when_agents_go_astray_course_correcting.md), [17](notes/active/17_masprism_lightweight_failure_attribution_for_multi.md), [18](notes/active/18_agentracer_who_is_inducing_failure_in.md), [19](notes/active/19_harness_r1_learning_to_edit_executable.md), [20](notes/active/20_ai4ai_at_test_time_strong_to.md), [21](notes/active/21_rethinking_the_evaluation_of_harness_evolution.md), [22](notes/active/22_sample_efficient_learning_from_agent_experience.md), [23](notes/active/23_trace_turn_level_reward_assignment_via.md)
+> **Version:** v23 (25 papers)
+> **Last Updated:** 2026-09-01
+> **Papers:** [01](notes/active/01_signals_trajectory_triage.md), [02](notes/active/02_agenther_hindsight_relabeling.md), [03](notes/active/03_tsr_trajectory_search_rollouts.md), [04](notes/active/04_agenttrace_structured_logging.md), [05](notes/active/05_breaking_observability_tax.md), [06](notes/active/06_agentseer_agentic_vulnerabilities.md), [07](notes/active/07_agent_as_a_judge.md), [08](notes/active/08_tide_trace_diagnostics.md), [09](notes/active/09_trajectory_guard_a_lightweight_sequence_aware.md), [10](notes/active/10_policy_invisible_violations_in_llm_based.md), [11](notes/active/11_near_miss_latent_policy_failure_detection.md), [12](notes/active/12_agentic_harness_engineering_observability_driven_automatic.md), [13](notes/active/13_where_llm_agents_fail_and_how.md), [14](notes/active/14_autodata.md), [15](notes/active/15_aevo_harnessing_agentic_evolution.md), [16](notes/active/16_when_agents_go_astray_course_correcting.md), [17](notes/active/17_masprism_lightweight_failure_attribution_for_multi.md), [18](notes/active/18_agentracer_who_is_inducing_failure_in.md), [19](notes/active/19_harness_r1_learning_to_edit_executable.md), [20](notes/buffer/20_ai4ai_at_test_time_strong_to.md), [21](notes/active/21_rethinking_the_evaluation_of_harness_evolution.md), [22](notes/buffer/22_sample_efficient_learning_from_agent_experience.md), [23](notes/active/23_trace_turn_level_reward_assignment_via.md), [24](notes/active/24_recursive_experiential_working_memory_evolution_for.md), [25](notes/active/25_skill_state_scalable_long_horizon_agent.md)
 > **Thesis:** [.researcher/thesis.md](.researcher/thesis.md)
 
 ---
@@ -15,7 +15,7 @@ Silver & Sutton 把改进介质换成 agent 与环境的交互流；姚顺雨把
 
 ## G1 捕获：schema 是门槛，前线用轻量信号
 
-**文献现状。** L0：AgentTrace [4] 给出 operational + cognitive + contextual 三类 surface；thesis 还要用户话语与系统资源状态，否则 L1 的 Interaction/Environment 信号无法计算。沉默门控被反复坐实——Sentinel [10] Coverage 里 scope 缺失让 recall 100%→40%；Near-Miss [11] 的 history search 依赖每次 tool call 的 name+args+return，缺字段方法即失效；AgentDebug [13] 强制四模块 tag 的 Modular rollout 比 ReAct 高 +12 pp，schema 在 detector 介入前就拿走 31% 相对增益。[12] 的 7 类组件文件把同一约束延伸到 harness mutation：[19] 的 failure packet / 四 hook 同样要求任务约束与动作-观测摘录在场。
+**文献现状。** L0：AgentTrace [4] 给出 operational + cognitive + contextual 三类 surface；thesis 还要用户话语与系统资源状态，否则 L1 的 Interaction/Environment 信号无法计算。沉默门控被反复坐实——Sentinel [10] Coverage 里 scope 缺失让 recall 100%→40%；Near-Miss [11] 的 history search 依赖每次 tool call 的 name+args+return，缺字段方法即失效；AgentDebug [13] 强制四模块 tag 的 Modular rollout 比 ReAct 高 +12 pp，schema 在 detector 介入前就拿走 31% 相对增益。[12] 的 7 类组件文件把同一约束延伸到 harness mutation：[19] 的 failure packet / 四 hook 同样要求任务约束与动作-观测摘录在场；Recuris [24] 的结构化轨迹 \(\Gamma_k\)（工作状态、技能、动作、观测、checker）把组件归因宏平均从 13.0%/37.0%（仅 outcome / raw）提到 64.8% [24: §3.4.1, Table 4]。SKILLSTATE [25] 把同一约束推到**执行底物**：域内一次性 schema 须充当未来决策的充分统计量，否则丢弃历史推理/观测即有损 [25: §3.1, §7]。
 
 L1：Signals [1] 在 τ-bench 上以非语义规则达 82% informativeness、~1.5× 采样，且明确 signals 不是 quality scores、不开药方。旁证同向但方法分叉——AgentSeer [6] 图拓扑、Trajectory Guard [9] 序列小代理（F1 ~0.92，宣称比 LLM-judge 快 17–27×）、Sentinel [10] 声明式 KG 不变量（acc/F1 0.93）、Near-Miss [11] 成功轨迹上的 guard-code oracle。SWE-PRM [16] 的低效 taxonomy 与 MASPrism [17] 的 prefill 内部信号可作捕获门控，而不是只做事后评判。
 
@@ -27,9 +27,9 @@ L1：Signals [1] 在 τ-bench 上以非语义规则达 82% informativeness、~1.
 
 判断纪律：规则可枚举处机制化——[11] 确定性 Python guard，[10] policy-in-prompt 对照下违规仅 95.3%→40.7%、跨模型 25%–85% 不一致。[17] 是中间态：LLM 内部量进确定性聚合，无 free-form，但建在有争议的 attention-as-explanation 上。[16] 给出结构化 vs 自由式最干净对照：taxonomy-guided PRM_D +10.6 pp 且步数微降，优于 free-form PRM_S（+5.8、步数 38.6→51.5）也优于替策略选动作的 PRM_DR（+4.8）。[7][13][16] 都展现换弱模型即崩（[13] All-Correct 32%→6%；[16] 开源 PRM 全部 ≤ base、最差 −20.4 pp）。[13] 单条 ALFWorld 仅 detection 即 40–60 次 GPT-4.1。[18] 证明「不需要 frontier judge」，不证明「应当机制化」。
 
-**残留张力。** Signals 的 82% 未在非 τ-bench 复现（可证伪点「流」）。[9] 学习型小代理 vs [10][11] 声明型 oracle 的选边仍在。尚无最小充分 schema 字段集。[5] 仅摘要级，旧「>5× 降本」不可引用为已证。[17] 只在全失败基准评测，HC Top-1 <30%，不是端到端 triage。
+**残留张力。** Signals 的 82% 未在非 τ-bench 复现（可证伪点「流」）。[9] 学习型小代理 vs [10][11] 声明型 oracle 的选边仍在。尚无最小充分 schema 字段集；[25] 证明「字段不够则丢历史有损」，但仍未给出跨域最小字段表。[5] 仅摘要级，旧「>5× 降本」不可引用为已证。[17] 只在全失败基准评测，HC Top-1 <30%，不是端到端 triage。
 
-**对我们系统的含义。** schema 先行，再选 L1/更新方法。前线轻量信号；LLM-judge 只留分诊后小子集。能枚举规则处全机制化；必须用 LLM 处走 [16] PRM_D 式 yes/no 树，确定性止于判定、不替策略选动作。归因接在 L1 之后。成功轨迹的隐性摩擦是给更新 A 的原料，不是单独一章进化。
+**对我们系统的含义。** schema 先行，再选 L1/更新方法。前线轻量信号；LLM-judge 只留分诊后小子集。能枚举规则处全机制化；必须用 LLM 处走 [16] PRM_D 式 yes/no 树，确定性止于判定、不替策略选动作。归因接在 L1 之后。成功轨迹的隐性摩擦是给更新 A 的原料，不是单独一章进化。执行环若采用 [25] 式丢历史，必须另开经验旁路日志，否则捕获层失明（见 contradictions）。
 
 ## G2 更新 A：能力或偏好错则改权重
 
@@ -41,11 +41,11 @@ L1：Signals [1] 在 τ-bench 上以非语义规则达 82% informativeness、~1.
 
 ## G3 更新 B：基板或 runtime 错则改 harness
 
-**文献现状。** 场景是基板/runtime 错：权重冻住、要可回滚、一条 patch 能泛化、失败能定位到组件或 hook。Harness-R1 [19] 把编辑形式化为可训练 9B engineer：failure packet → 四 hook 可执行 patch → 冻结 target 重跑 Δ reward → GRPO。vanilla 9B 44.3%→53.6%（+9.3 pp），超最强 frontier prompted editor（GLM-5.2 48.8%）；outcome-trained 比 supervised-only 高 7.1 pp；跨 20 未见目标平均 +7.06 pp；仅 10 条失败生成的 patch 泛化到 1,270 held-out 任务 +8.9±1.5 pp。AI4AI [20] 在冻结弱模型上用强 builder 编译推理时 harness，宏平均 0.488→0.763。AHE [12] 改文件级 substrate，component ablation 里 memory 外置 +5.6 pp、单换 system prompt −2.3 pp。AEVO [15]、Autodata [14] 同族但 proposer 参数不更新；[15] 有 evaluator 只读隔离（去掉会 reward-hacking），[14] val pass 12.8%→42.4% 且无 per-edit 预言。
+**文献现状。** 场景是基板/runtime 错：权重冻住、要可回滚、一条 patch 能泛化、失败能定位到组件或 hook。Harness-R1 [19] 把编辑形式化为可训练 9B engineer：failure packet → 四 hook 可执行 patch → 冻结 target 重跑 Δ reward → GRPO。vanilla 9B 44.3%→53.6%（+9.3 pp），超最强 frontier prompted editor（GLM-5.2 48.8%）；outcome-trained 比 supervised-only 高 7.1 pp；跨 20 冻结目标平均 +7.06 pp；仅 10 条失败生成的 patch 泛化到 1,270 held-out 任务 +8.9±1.5 pp。Recuris [24] 是同族分叉：冻结基座与 Meta-Agent，只递归演化 Skill Memory \(M=(E,W,\rho,C)\)；EM–WM 耦合让执行产出可归因证据，再经源失败修复 + held-out 回归门接纳补丁。35/37 model–benchmark 对正向；τ²-Retail 上 GPT-5.6 Sol +17.8、Claude Opus 5 +15.6（至 87.9%）；消融显示主增益在工作状态（WM-only +23.9†）而非技能库内容（EM-only +2.0，CI 含 0）；跨任务 held-out 相对 \(M_0\) 约 +9.3∼+17.4，但无共享结构时 Terminal-Bench 跨任务 13 轮零接纳 [24: §3.2–3.5]。**执行底物（非演化）分叉**：SKILLSTATE [25] 不打补丁、不训编辑器，而把每步条件化收成 \((P,\Sigma_t,O_t)\)，校验合并 \(\Delta\Sigma_t\) 后永久丢弃 \(R_t\) 与旧观测/动作；Warehouse \(T=100\) 准确率 \(0.94\)、累计 \(\sim 65\mathrm{k}\) tokens，相对 Stateful（状态+全文 transcript）约 \(16.2\times\) token [25: Table 1]；同预算 \(\sim 1{,}800\) token 下截断/摘要/LLMLingua 掉到 \(0.18\)/\(0.52\)/\(0.22\) 而 [25] 仍 \(0.94\) [25: Table 5]；\(\tau\)-Bench Retail/Airline pass \(58.3\%\)/\(32.4\%\)（Stateful \(51.7\%\)/\(28.1\%\)）[25: Table 4]。与 [24] 的「WM > 堆文本」同向、机制落点不同（跨任务演化记忆 vs 单技能 \(O(1)\) 执行环）。AI4AI [20]（buffer）在冻结弱模型上用强 builder 编译推理时 harness，宏平均 0.488→0.763。AHE [12] 改文件级 substrate，component ablation 里 memory 外置 +5.6 pp、单换 system prompt −2.3 pp。AEVO [15]、Autodata [14] 同族但 proposer 参数不更新；[15] 有 evaluator 只读隔离（去掉会 reward-hacking），[14] val pass 12.8%→42.4% 且无 per-edit 预言。
 
-**残留张力。** [19] 无 [12] 式 predicted_fixes/risk_tasks 合同，reward 绑同批任务（transductive），GPU-hour 未披露。[20] 头条 best-of 会夸大代表性。B 的表观涨点必须过 G5： [21] 同预算下 evolved harness held-out 平均仅 +0.6。飞轮初期成本高（AEVO ~3×，[19] K=8×全批重跑未量化）。
+**残留张力。** [19] 无 [12] 式 predicted_fixes/risk_tasks 合同，reward 绑同批任务（transductive），GPU-hour 未披露。[24] Meta-Agent 属 LLM-agent 成本档且未报定位/补丁 token，τ²/SkillFlow 缺同预算 sampling 硬对照；可搬性依赖任务族共享结构 [24: §3.1, §3.2]。[25] 硬依赖域内可预写充分统计量 schema；SkillExecBench 与槽位假设同构，Memory 基线封顶失败，Retail 平均 prompt 反高于 ReAct，开源模型主败在结构化遵从（Gemma \(T=100\) 与 Stateful 同为 \(0.42\)）[25: §4.1, Table 1, Table 4, §5.7]。[20] 头条 best-of 会夸大代表性。B 的表观涨点必须过 G5： [21] 同预算下 evolved harness held-out 平均仅 +0.6。飞轮初期成本高（AEVO ~3×，[19] K=8×全批重跑未量化，[24] Meta-Agent 未计价）。
 
-**对我们系统的含义。** 走 B 的条件：失败能落到组件/hook，或权重根本不能动。接受信号尽量 outcome-grounded（[19]），部署仍要 falsifiable 合同（[12]）；[15] 的 evaluator 隔离必要不充分。用 [1] 对失败子集做前置 triage，再喂 [19] engineer，摊薄重跑——论文未做此门控。
+**对我们系统的含义。** 走 B 的条件：失败能落到组件/hook/记忆控制面，或权重根本不能动；若无跨题共享结构，默认不要指望跨任务记忆演化。接受信号尽量 outcome-grounded（[19]）或 held-out 回归门（[24]），部署仍要 falsifiable 合同（[12]）；[15] 的 evaluator 隔离必要不充分。用 [1] 对失败子集做前置 triage，再喂 [19] engineer 或 [24] Meta-Agent，摊薄重跑/定位——两篇均未做此门控。机制优先吸收 [24] 的「WM 状态锚定 > 堆技能文本」，并用 [25] 把该原则落实为可校验的执行环——但经验捕获必须双轨，禁止把 \(\Sigma\)-only runtime 当成唯一持久层。
 
 ## G4 双轨分流：A 与 B 并列，可叠，先分流再更新
 
@@ -54,7 +54,7 @@ L1：Signals [1] 在 τ-bench 上以非语义规则达 82% informativeness、~1.
 分诊后四路（thesis G4）：
 
 1. **失败 + 可配对纠正** → A（[2] + [11] 绕过 vs 合规）。
-2. **系统性、可定位到组件/hook** → B（[19] 四 hook，[12] 文件级 substrate）。
+2. **系统性、可定位到组件/hook/记忆控制面** → B（[19] 四 hook，[12] 文件级 substrate，[24] Skill Memory 四元组）。
 3. **成功但有隐性摩擦** → 优先作 A 的原料（[11]）；不是 B 的主场。
 4. **单次可救、不该沉淀** → **非更新**。SWE-PRM [16]、AgentDebug [13] 在执行中途或单次 re-rollout 纠偏，不改权重也不落盘 harness。弱 PRM 会主动带偏（开源 PRM_S 把 32B 从 40.0% 拖到 19.6%、patch gen 92.4%→67.6%）。若仍要 in-flight，用 L1 信号（Loop/Stagnation）做稀疏门控，替代 [16] 的固定 n=5。[16] 的 +10.6 pp 全来自 Claude 监督弱 32B，而 Claude 单独做 policy 即 66.6%——未隔离「过程奖励」与「强模型泄漏」。
 
@@ -64,26 +64,28 @@ L1：Signals [1] 在 τ-bench 上以非语义规则达 82% informativeness、~1.
 
 ## G5 评价是门：两条更新共用同一套纪律
 
-**文献现状。** Rethinking Harness Evolution Eval [21] 把 evolution 与 parallel/sequential sampling 锁进同一预算，held-out 上 evolved harness 平均仅 +0.6，表观收益常可被多采样解释。[20] 的 holdout 迁移与 [21] 的 disjoint 测量互补，但任务族不同，不能互否。这扇门卡住 B，同样卡住 A 的「训练涨点」。
+**文献现状。** Rethinking Harness Evolution Eval [21] 把 evolution 与 parallel/sequential sampling 锁进同一预算，held-out 上 evolved harness 平均仅 +0.6，表观收益常可被多采样解释。[20] 的 holdout 迁移与 [21] 的 disjoint 测量互补，但任务族不同，不能互否。Recuris [24] 把该门的边界写清：Terminal-Bench TTA 在匹配重试预算后「学习」仅 +2.3（\(p=0.774\)），与 [21] 同向；有共享结构时跨任务 held-out 却见 +9.3∼+17.4——故「进化≈多样本」不是一律成立，也不是一律可废 [24: §3.4–3.5]。这扇门卡住 B，同样卡住 A 的「训练涨点」。
 
-self-audit 两轴：(i) 推理期 falsifiable 合同——AHE [12] fix-prediction 5× random、regression-prediction 2× random；AEVO [15] 有隔离无 per-edit 预言；Autodata [14] 两者均弱。(ii) 训练期 outcome 接地——[19] 用重跑 Δ reward，9B 超 397B 级 prompted editor，但无 [12] 式合同。AgentDebug [13]、SWE-PRM [16]、AgenTracer [18] 落在两轴最差端，只报端到端 Δ（+26% relative / +10.6 pp / +4.8∼14.2%），不度量反馈命中率。TIDE [8] 是事后诊断交付人类，[16] 自称优于 post-mortem，却没度量中途反馈是否对。[18] 与 [19] 独立坐实固定 Self-Refine 有害（−4.9%/−5.5%；平均 −2.5 pp）。Agent-as-a-Judge [7] 是重量级语义终评样板，作对照组而非生产前门。
+self-audit 两轴：(i) 推理期 falsifiable 合同——AHE [12] fix-prediction 5× random、regression-prediction 2× random；AEVO [15] 有隔离无 per-edit 预言；Autodata [14] 两者均弱；[24] 有源失败修复 + held-out 回归门与 localization 宏准确率 64.8%，但仍无 [12] 式 predicted_fixes/risk_tasks 预言，且 Meta-Agent 成本未披露。(ii) 训练期 outcome 接地——[19] 用重跑 Δ reward，9B 超 397B 级 prompted editor，但无 [12] 式合同。AgentDebug [13]、SWE-PRM [16]、AgenTracer [18] 落在两轴最差端，只报端到端 Δ（+26% relative / +10.6 pp / +4.8∼14.2%），不度量反馈命中率。TIDE [8] 是事后诊断交付人类，[16] 自称优于 post-mortem，却没度量中途反馈是否对。[18] 与 [19] 独立坐实固定 Self-Refine 有害（−4.9%/−5.5%；平均 −2.5 pp）。Agent-as-a-Judge [7] 是重量级语义终评样板，作对照组而非生产前门。
 
-**残留张力。** 下一代通用模型不改 env 是否压过 harness **与** 权重侧改进——未测。人类偏好 vs 接地 outcome 的成本——未测（可证伪点「评价」）。[19] 的 held-out 泛化与 [21] 的「进化≈多样本」尚未在同一协议对打。
+**残留张力。** 下一代通用模型不改 env 是否压过 harness **与** 权重侧改进——未测。人类偏好 vs 接地 outcome 的成本——未测（可证伪点「评价」）。[19]/[24] 的 held-out 泛化与 [21] 的「进化≈多样本」尚未在同一协议（同预算 sampling 臂）对打；[24] τ²/SkillFlow 尤其缺该臂。
 
-**对我们系统的含义。** 没有同预算采样对照和 held-out，就不把 A 或 B 的涨点写成改进。生产 auto-fix 两轴过线。Self-Refine 不当默认策略。
+**对我们系统的含义。** 没有同预算采样对照和 held-out，就不把 A 或 B 的涨点写成改进；有共享结构时 [24] 可作 held-out 正例候选，仍须补 sampling 臂。生产 auto-fix 两轴过线。Self-Refine 不当默认策略。
 
 ## 可证伪点追踪
 
 - **流**：轻量信号在非 τ-bench 上 >70% informativeness，或未分诊端到端 RL 打赢闭环。状态：**未测**。唯一正面数字仍是 [1] 的 τ-bench 82%，未独立复现。[9][10][11][17] 是旁证、指标不可折算；[18] 是训练化 judge，几乎不构成正面证据。待决：非 τ-bench 生产风格语料上跑非语义信号并报 informativeness。
 - **更新 A**：L1 子集 hindsight 相对随机偏好有下游胜率；或 SWE-bench 类等预算过程监督优于 outcome-only。状态：**未测 / 张力**。[2][11] 给出管线，[23] 在搜索域支持密集信用，无目标 falsifier 上的 win rate。[22] 反对 raw dump SFT。待决：L1-triaged relabel vs 随机采样的同条件 DPO；过程监督对照须能对上 SWE-bench 类预算。
-- **更新 B**：同预算 + held-out 分离后仅改 harness 仍有稳定增量（[21] 的 +0.6 不算）；或冻结 target 时系统性压过「只多样本」。状态：**张力**。[19][20][12] 显示不改权重能涨点，但 [21] 表明评价协议可把「进化」解释成采样。[19] 有 held-out 泛化，reward 仍 transductive。待决：同一预算框架下 harness-edit vs parallel/sequential sampling。
-- **评价**：下一代通用模型不改 env/eval 即系统性压过 harness **与** 权重侧改进；或人类偏好持续更便宜更稳。状态：**张力 / 未测**。[21] 可翻转「进化是否有效」；[20] 冻结模型+harness 可超更强裸模型，支持「评价/系统重于 scale」，但无参数 scale-only 头对头。第二条未测。
+- **更新 B**：同预算 + held-out 分离后仅改 harness 仍有稳定增量（[21] 的 +0.6 不算）；或冻结 target 时系统性压过「只多样本」。状态：**张力**。[19][20][12][24] 显示不改权重能涨点；[24] 在共享结构族上 held-out +9.3∼+17.4，无共享结构时与 [21] 同向（TTA 学习项 +2.3，\(p=0.774\)）。[21] 仍表明评价协议可把「进化」解释成采样；[19] reward 仍 transductive，[24] τ²/SkillFlow 缺 sampling 臂。待决：同一预算框架下 harness-edit（含记忆控制层）vs parallel/sequential sampling，并显式分层「有/无共享结构」。
+- **评价**：下一代通用模型不改 env/eval 即系统性压过 harness **与** 权重侧改进；或人类偏好持续更便宜更稳。状态：**张力 / 未测**。[21] 可翻转「进化是否有效」；[20][24] 冻结模型+harness/记忆可抬升甚至跨模型迁移，支持「评价/系统重于 scale」，但无参数 scale-only 头对头。第二条未测。
 
 旧四层栈口径下的 sentinel「>5× 降本」已退出 thesis 可证伪列表，降为 G1 残留（[5] 未深读，不能当已证）。
 
 ## 版本更新日志
 | 版本 | 日期 | 新增论文 | 关键变化 |
 |------|------|---------|---------|
+| v23 | 2026-09-01 | [25] SKILLSTATE / 长程 skill 执行底物 | [25] 进 G3 作为**执行底物（非演化）**分叉：\((P,\Sigma_t,O_t)\) + 可校验状态补丁，丢弃推理迹；落实 [24]「WM 锚定 > 堆文本」。G1 补 schema 充分统计量侧证。一条 vs-thesis contradiction（执行丢历史 vs 经验流须捕获）；taxonomy 提案：更新 B 内区分演化 vs 执行底物。zone：[20][22]→buffer。 |
+| v22 | 2026-08-29 | [24] Recuris / EM–WM Skill Memory 演化 | [24] 进 G3（更新 B 记忆控制层分叉：冻结基座+Meta-Agent，只演化 \(M=(E,W,\rho,C)\)；WM 承载主增益）与 G5（对 [21] 给出共享结构 held-out 正例 vs 无结构重试主导的边界）。G1 补 \(\Gamma_k\) schema→归因准确率证据。可证伪「更新 B/评价」写入共享结构前置与 sampling 臂缺口。两条 contradiction：vs [21] 协议边界；vs thesis 轻量分诊后再深度 LLM。 |
 | v21 | 2026-08-23 | — | 按 thesis Design Context 重脊骨：G1 捕获 / G2 更新 A / G3 更新 B / G4 分流 / G5 评价门。A/B 并列；in-flight 标非更新；废止 off-axis 桶。可证伪点改为四条。 |
 | v20 | 2026-08-22 | [20] AI4AI · [21] Rethinking harness eval · [22] Experience distillation · [23] TRACE turn-credit | 报告骨架改为闭环三节（流 / 更新 / 评价）。[20][21] 进评价（及 [20] 的 harness 更新）；[22][23] 进更新。§4 按新三条可证伪点给 未测/张力 状态。 |
 | v16 | 2026-06-02 | [16] SWE-PRM / When Agents go Astray | 报告首次创建（thesis-anchored 骨架）。[16] 引入"判断层 lifecycle = in-flight/online"新维度，进入 §6（结构化 > 自由式的最干净对照：PRM_D +10.6 严格优于 free-form PRM_S +5.8）与 §7（self-audit 谱最差端，与 [13] 同属 report-neither）；记录与 [11] 的 cross-paper contradiction、一条 taxonomy 扩展提案、一条 charter tension（trace 轴是否覆盖 in-flight course-correction）。 |

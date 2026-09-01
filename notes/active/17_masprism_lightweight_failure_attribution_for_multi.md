@@ -1,9 +1,9 @@
 ---
 zone: active
-tags: [capture_stream, evaluation_protocol]
+tags: ["capture_stream","evaluation_protocol"]
 pin: false
-score: 0.9578947368421052
-dwell: 1
+score: 0.8273191489361702
+dwell: 2
 ---
 # 论文阅读笔记：《MASPrism — Lightweight Failure Attribution for Multi-Agent Systems Using Prefill-Stage Signals》
 

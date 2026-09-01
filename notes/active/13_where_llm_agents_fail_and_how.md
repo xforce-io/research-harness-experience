@@ -1,9 +1,9 @@
 ---
 zone: active
-tags: [evaluation_protocol]
+tags: ["evaluation_protocol"]
 pin: false
-score: 0.8039167686658506
-dwell: 1
+score: 0.7058723404255318
+dwell: 2
 ---
 # 论文阅读笔记：《Where LLM Agents Fail and How They can Learn From Failures》
 

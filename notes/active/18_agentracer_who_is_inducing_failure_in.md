@@ -1,9 +1,9 @@
 ---
 zone: active
-tags: [evaluation_protocol]
+tags: ["evaluation_protocol"]
 pin: false
-score: 0.9231334149326804
-dwell: 1
+score: 0.8050212765957445
+dwell: 2
 ---
 # 论文阅读笔记：《AgenTracer: Who Is Inducing Failure in the LLM Agentic Systems?》
 

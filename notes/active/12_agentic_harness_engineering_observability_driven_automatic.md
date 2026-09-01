@@ -1,9 +1,9 @@
 ---
 zone: active
-tags: [update_harness, evaluation_protocol]
+tags: ["update_harness","evaluation_protocol"]
 pin: false
-score: 0.7758873929008567
-dwell: 1
+score: 0.792
+dwell: 2
 ---
 # 论文阅读笔记：《Agentic Harness Engineering: Observability-Driven Automatic Evolution of Coding-Agent Harnesses》
 

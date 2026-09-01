@@ -1,9 +1,9 @@
 ---
 zone: active
-tags: [update_harness]
+tags: ["update_harness"]
 pin: false
-score: 0.5739290085679315
-dwell: 1
+score: 0.5463829787234042
+dwell: 2
 ---
 # 论文阅读笔记：《Harnessing Agentic Evolution》
 

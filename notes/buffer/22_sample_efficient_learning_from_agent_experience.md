@@ -1,9 +1,9 @@
 ---
-zone: active
-tags: [update_weights]
+zone: buffer
+tags: ["update_weights"]
 pin: false
-score: 0.5413333333333333
-dwell: 3
+score: 0.4030638297872341
+dwell: 0
 ---
 # Sample-Efficient Learning from Agent Experience
 
