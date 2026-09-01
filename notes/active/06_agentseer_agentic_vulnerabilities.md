@@ -1,9 +1,9 @@
 ---
 zone: active
-tags: [capture_stream]
+tags: ["capture_stream"]
 pin: false
-score: 0.20305997552019583
-dwell: 1
+score: 0.15982978723404256
+dwell: 2
 ---
 # 论文阅读笔记：《AgentSeer: Evaluating Agentic Vulnerabilities》
 

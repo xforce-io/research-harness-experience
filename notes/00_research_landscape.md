@@ -10,13 +10,13 @@ CHARTER 三词是支柱边界。下图是闭环**内部**架构（thesis Design 
 ┌─────────────────────────────────────────────────────────────────────────┐
 │         L0 schema → L1 分诊 →（可选归因）→ 分流 → 评价门 → 回写         │
 ├─────────────────────────────────────────────────────────────────────────┤
-│  L0 schema     [4][5]          缺字段 → 下游静默失效                    │
+│  L0 schema     [4][5][25]      缺字段 → 下游静默失效                    │
 │  L1 分诊       [1][6][9][10][11]  轻量信号；[16][17] 也可作门控         │
 │  归因（可选）  [17][18]        哪一步坏 ≠ 哪条值得看 ≠ 好不好           │
 │       │                                                                 │
 │       ├─► 更新 A 改权重     [2][3][22][23]          ──┐                 │
-│       ├─► 更新 B 改 harness  [12][14][15][19][20]   ──┼─► 评价门        │
-│       ├─► A 与 B 都走（可叠）  [2]+[19] co-evolve    ──┘   [21][12]      │
+│       ├─► 更新 B 改 harness  [12][14][15][19][20][24][25]─┼─► 评价门    │
+│       ├─► A 与 B 都走（可叠）  [2]+[19] co-evolve    ──┘   [21][12][24]  │
 │       └─► 非更新 in-flight   [16][13]  不落盘，不算进化                  │
 │  评价门横切 A 与 B：搜索≠终评 · 同预算采样 · held-out · 反馈自审计       │
 │  对照组：[7][8][18]（LLM-judge / 未自审计闭环）                         │
@@ -92,6 +92,18 @@ CHARTER 三词是支柱边界。下图是闭环**内部**架构（thesis Design 
 | Signals [1] | Harness-R1 [19] | orthogonal / 可串联 [med]：[1] 做 L1 triage 选出高价值失败子集；[19] 输入即 failure packet（从失败轨迹压缩），默认全量失败进 engineer。工程上可把 [1] 筛后的高 informativeness 失败喂 [19] engineer，摊薄 K=8 候选 × 全批重跑的 RL 成本——论文未做此门控 [19: §3.1; 1: §2.1] |
 | AgenTracer [18] | Harness-R1 [19] | extends / 同向 [med]：两篇独立坐实 **固定 Self-Refine 类策略不稳定甚至有害**——[18] CRITIC+MaAS+GAIA iter-2/3 各 −4.9%/−5.5%；[19] Self-Refine 三 benchmark 均降分（平均 −2.5 pp）。[19] 进一步把"固定策略"泛化为"failure-conditioned、可学习的编辑策略"，用 outcome RL 替代 prompt 级反思 [19: §4.2 Table 1; 18: §5.3] |
 | AgentTrace [4] | Harness-R1 [19] | orthogonal [low]：[19] 的 failure packet extractor 与四 hook 接口（`on_init` / `make_pre_hint` / `on_before_action` / `on_post_step`）隐式要求轨迹保留任务约束、动作-观测摘录、结果与环境状态；缺字段则 packet 信息密度不足、patch 无法泛化——又一例"L0 schema 是 silent gating constraint"，但论文未系统化字段最小集 [19: §3.1; 4: §3] |
+| Harness-R1 [19] | Recuris [24] | **competes-with** [med]：二者都冻结 target 权重、从失败轨迹改 harness；[19] 训 9B engineer 用重跑 Δ 做 GRPO，[24] 用固定 Meta-Agent 对 Skill Memory \(M=(E,W,\rho,C)\) 做组件级、held-out 门控补丁，不更新编辑器权重 [24: §2.1.1, §2.3; 19: §2] |
+| AHE [12] | Recuris [24] | competes-with [med]：同属「结构化失败证据 → 可验证 harness 编辑」；[12] 覆盖七类文件级组件并带 change manifest，[24] 把可演化面收窄到 Skill Memory 四元组并显式 EM–WM 执行耦合；[24] 有源失败修复 + held-out 回归门，但无 [12] 式 predicted_fixes/risk_tasks 预言核对 [24: §2.3.2–2.3.3; 12: §4.4.2] |
+| AEVO [15] | Recuris [24] | competes-with [med]：都把积累证据反哺「驱动未来行为的机制」；[15] 编辑 procedure/agent context，[24] 递归演化记忆控制层并坚持外环（基座/工具/Meta-Agent/门）固定 [24: §2.1.1; 15: §3] |
+| Rethinking harness eval [21] | Recuris [24] | **extends** [high]：[24] Terminal-Bench TTA 分解显示 matched-budget「学习」项仅 +2.3（\(p=0.774\)），与 [21]「表观 harness 收益常可被多样本/重试解释」同向；同时在有共享结构的跨任务 held-out 上报告 +9.3∼+17.4——给出 [21] 主张的正/反边界（共享结构可搬 vs 孤立任务重试主导）[24: §3.2, §3.4.2–3.4.3, §3.5, Table 8; 21] |
+| AgentTrace [4] | Recuris [24] | builds-on [low]：结构化轨迹 \(\Gamma_k\)（工作状态、技能调用、动作、观测、checker 判定）把失败归因到可修补组件的宏平均准确率从 13.0%/37.0%（仅 outcome / raw）提到 64.8%，又一例 L0 schema 使下游归因可计算；论文未引用 [4]，关联为综合推断 [24: §2.1.2, §3.4.1, Table 4; 4: §3] |
+| Signals [1] | Recuris [24] | orthogonal [low]：同用 τ-bench 族长程工具对话暴露失败，但 [1] 做部署后轻量分诊采样，[24] 做 harness 侧记忆演化与执行时状态锚定调用，闭环阶段不同；[24] 未对失败子集做 [1] 式前置 triage 再喂 Meta-Agent [24: §3.1; 1: §2.1] |
+| SWE-PRM [16] | Recuris [24] | orthogonal [med]：[16] 是轨迹中途 in-flight 纠偏（非更新）；[24] 主路径是跨任务落盘的 Skill Memory 演化，TTA 模式虽单任务重试但仍改外部记忆而非逐步 PRM 灌评 [24: §2.3.5, §3.5; 16: §3] |
+| Recuris [24] | SKILLSTATE [25] | **orthogonal** [med]：二者都强调长程任务需要紧凑可信的工作状态；[24] 跨任务演化 Skill Memory \(M=(E,W,\rho,C)\) 且消融显示 WM 承载主增益，[25] 在单技能执行时把条件化底物收成 \((P,\Sigma_t,O_t)\)、丢弃推理迹，固定域 schema、不做跨任务记忆演化 [25: Relations, §3; 24: §3.2] |
+| AgentTrace [4] | SKILLSTATE [25] | extends [med]：[25] 把域内一次性编写的结构化 schema 当作未来决策的充分统计量；若字段不足以投影首次知悉的决策相关信息，丢弃历史即有损——把 thesis「L0 schema 是 silent gating」从日志/归因侧延伸到**执行底物**侧 [25: §3.1, §7; 4: §3] |
+| AHE [12] | SKILLSTATE [25] | orthogonal [med]：同向「把状态移出聊天记录」——[12] 外置 long-term memory 文件（+5.6 pp，training-loop 演化），[25] 让结构化 \(\Sigma\) 成为逐步唯一条件化底物并永久丢弃 \(R_t\)/旧观测（inference-time 执行环）；生命周期与是否演化不同 [25: §3; 12: §4.4.1] |
+| Harness-R1 [19] | SKILLSTATE [25] | orthogonal [low]：[19] 从失败轨迹编辑 lifecycle hook；[25] 重设计冻结 runtime 每步喂给模型的条件化底物，不训练编辑器、不改 hook 接口 [25: §3; 19: §2] |
+| Signals [1] | SKILLSTATE [25] | orthogonal [low]：同用 \(\tau\)-Bench 族工具对话；[1] 做部署后轻量分诊采样，[25] 做执行时 \(O(1)\) prompt 状态转移。若生产只保留 [25] 的 \(\Sigma\) 而不另开经验日志，则 [1] 所需的交互/执行面字段可能不可复算——须双轨存储 [25: Table 4; 1: §2.1] |
 
 ## 阅读优先级建议
 
@@ -108,6 +120,8 @@ CHARTER 三词是支柱边界。下图是闭环**内部**架构（thesis Design 
    - [9] Trajectory Guard ✅ 已读 — L1 分诊层"学习型小代理"对照组，方法论与 [1] 互斥
    - [10] Sentinel / PhantomPolicy ✅ 已读 — 动作时声明式 KG 不变量验证；L1 邻居（enforcement 侧），与 [9] 学习型路线分叉，并为 thesis"schema 是 silent gating constraint"提供 Coverage 退化实证
    - [11] Near-Miss / Latent Policy Failure ✅ 已读 — 评估范式横切 + L1 后置补盲：guard-code-as-oracle 反查"成功轨迹中应读未读的 RO"，τ²-Airlines 上 8.6%–17.3% mutating 轨迹被检出；与 [10] 形成 in-line/post-hoc 互补，并为"成功轨迹的 hindsight relabel"提供可执行入口（[2] AgentHER 的天然原料）
+   - [24] Recuris / Recursive Experiential–Working Memory ✅ 已深读 — **更新 B / 评价门边界**：冻结基座，EM–WM 耦合驱动状态锚定技能调用；固定 Meta-Agent 对 Skill Memory \(M=(E,W,\rho,C)\) 做组件级、held-out 门控补丁。35/37 model–benchmark 对正向；τ²-Retail 上 GPT-5.6 Sol +17.8、Opus 5 +15.6（至 87.9%）；消融显示主增益在 WM（+23.9†）而非 EM-only（+2.0，CI 含 0）。**对 [21] 的边界证据**：有共享结构时跨任务 held-out +9.3∼+17.4；无共享结构时 Terminal-Bench 跨任务 13 轮零接纳，TTA matched-budget 学习项仅 +2.3（\(p=0.774\)）。弱项：Meta-Agent 属 LLM-agent 成本档且未报定位/补丁 token；τ²/SkillFlow 缺同预算 sampling 硬对照
+   - [25] SKILLSTATE / Scalable Long-Horizon Agent Skills ✅ 已深读 — **更新 B（执行底物，非演化）+ L0 schema 侧证**：每步只条件化 \((P,\Sigma_t,O_t)\)，校验后合并 \(\Delta\Sigma_t\)，永久丢弃 \(R_t\) 与旧观测/动作；单步上下文近似 \(O(1)\)、累计 \(O(T)\)。Warehouse \(T=100\)：准确率 \(0.94\)、累计 \(\sim 65\mathrm{k}\) tokens，相对 Stateful（状态+全文 transcript）\(\sim 1.06\mathrm{M}\) tokens（约 \(16.2\times\)）[25: Table 1]。同预算 \(\sim 1{,}800\) token 下截断/摘要/LLMLingua 掉到 \(0.18\)/\(0.52\)/\(0.22\)，SKILLSTATE 仍 \(0.94\)——增益依赖结构化状态保留关系依赖，非「更短 prompt」[25: Table 5]。\(\tau\)-Bench Retail/Airline pass \(58.3\%\)/\(32.4\%\)（Stateful \(51.7\%\)/\(28.1\%\)）[25: Table 4]。与 [24] 正交互补：把「WM 状态锚定 > 堆技能/历史文本」落实为可部署执行环；硬依赖域内可预写充分统计量 schema，且审计/溯源类任务不适用。弱项：SkillExecBench 与槽位假设同构；Memory 基线封顶失败；Retail 平均 prompt 反高于 ReAct；开源模型主败在结构化遵从（Gemma \(T=100\) 与 Stateful 同为 \(0.42\)）
 
 3. 🟢 **P2 — 参考，拓宽理论视野**
    - [3] TSR — 训练期轨迹优化（与部署后场景互补）

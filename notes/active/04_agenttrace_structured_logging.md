@@ -1,9 +1,9 @@
 ---
 zone: active
-tags: [capture_stream]
+tags: ["capture_stream"]
 pin: false
-score: 0.20979192166462668
-dwell: 1
+score: 0.1916595744680851
+dwell: 2
 ---
 # 论文阅读笔记：《AgentTrace: A Structured Logging Framework for Agent System Observability》
 

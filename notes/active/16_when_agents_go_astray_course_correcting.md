@@ -1,9 +1,9 @@
 ---
 zone: active
-tags: [capture_stream, evaluation_protocol]
+tags: ["capture_stream","evaluation_protocol"]
 pin: false
-score: 0.6996328029375765
-dwell: 1
+score: 0.6198297872340426
+dwell: 2
 ---
 # 论文阅读笔记：《When Agents go Astray: Course-Correcting SWE Agents with PRMs》
 

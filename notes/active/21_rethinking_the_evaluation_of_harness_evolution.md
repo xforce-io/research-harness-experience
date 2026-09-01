@@ -1,9 +1,9 @@
 ---
 zone: active
-tags: [evaluation_protocol]
+tags: ["evaluation_protocol"]
 pin: false
-score: 0.4
-dwell: 1
+score: 0.4764255319148937
+dwell: 2
 ---
 # Rethinking the Evaluation of Harness Evolution for Agents
 

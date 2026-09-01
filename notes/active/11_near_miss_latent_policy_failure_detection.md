@@ -1,9 +1,9 @@
 ---
 zone: active
-tags: [capture_stream]
+tags: ["capture_stream"]
 pin: false
-score: 0.6850673194614443
-dwell: 1
+score: 0.5908936170212766
+dwell: 2
 ---
 # 论文阅读笔记：《Near-Miss: Latent Policy Failure Detection in Agentic Workflows》
 

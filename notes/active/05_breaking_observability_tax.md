@@ -1,9 +1,9 @@
 ---
 zone: active
-tags: [capture_stream]
+tags: ["capture_stream"]
 pin: false
-score: 0.20991432068543453
-dwell: 1
+score: 0.15659574468085108
+dwell: 2
 ---
 # 论文阅读笔记：《Breaking the Observability Tax》
 

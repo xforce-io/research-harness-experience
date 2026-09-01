@@ -2,7 +2,7 @@
 
 > ⚠️ 论文 PDF 原文件不纳入 Git 版本管理（见 `.gitignore`）。  
 > 本文件作为论文索引，记录每篇论文的元信息和获取方式。  
-> **Last Updated:** 2026-08-05
+> **Last Updated:** 2026-09-01
 
 ## 收录论文
 
@@ -27,6 +27,12 @@
 | 17 | MASPrism: Lightweight Failure Attribution for Multi-Agent Systems Using Prefill-Stage Signals | 2026 | [2605.07509](https://arxiv.org/abs/2605.07509) | — | [17](../notes/active/17_masprism_lightweight_failure_attribution_for_multi.md) ✅ |
 | 18 | AgenTracer: Who Is Inducing Failure in the LLM Agentic Systems? | 2025 | [2509.03312](https://arxiv.org/abs/2509.03312) | — | [18](../notes/active/18_agentracer_who_is_inducing_failure_in.md) ✅ |
 | 19 | Harness-R1: Learning to Edit Executable Runtime Harnesses from Agent Failure Trajectories | 2026 | [2608.02276](https://arxiv.org/abs/2608.02276) | — | [19](../notes/active/19_harness_r1_learning_to_edit_executable.md) ✅ |
+| 20 | AI4AI at Test-Time: Strong-to-Weak Harness | 2026 | [2608.12307](https://arxiv.org/abs/2608.12307) | — | [20](../notes/buffer/20_ai4ai_at_test_time_strong_to.md) ✅ |
+| 21 | Rethinking the Evaluation of Harness Evolution | 2026 | [2607.12227](https://arxiv.org/abs/2607.12227) | — | [21](../notes/active/21_rethinking_the_evaluation_of_harness_evolution.md) ✅ |
+| 22 | Sample-efficient Learning from Agent Experience | 2026 | [2607.21051](https://arxiv.org/abs/2607.21051) | — | [22](../notes/buffer/22_sample_efficient_learning_from_agent_experience.md) ✅ |
+| 23 | TRACE: Turn-level Reward Assignment via Experience | 2026 | [2607.13988](https://arxiv.org/abs/2607.13988) | — | [23](../notes/active/23_trace_turn_level_reward_assignment_via.md) ✅ |
+| 24 | Recuris: Recursive Experiential–Working Memory Evolution for Long-Horizon Agent Harnesses | 2026 | [2608.24876](https://arxiv.org/abs/2608.24876) | — | [24](../notes/active/24_recursive_experiential_working_memory_evolution_for.md) ✅ |
+| 25 | SKILLSTATE: Scalable Long-Horizon Agent Skills | 2026 | [2608.26263](https://arxiv.org/abs/2608.26263) | — | [25](../notes/active/25_skill_state_scalable_long_horizon_agent.md) ✅ |
 
 > **图例：** ✅ 全文已读 | 🟡 摘要/综述已读 | 🔲 待读  
 > **PDF 说明：** `Breaking the Observability Tax` 发表于 IEEE Access（付费），需通过机构权限从 [IEEE Xplore](https://doi.org/10.1109/ACCESS.2026.3675074) 手动下载。

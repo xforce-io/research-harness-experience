@@ -1,9 +1,9 @@
 ---
 zone: active
-tags: [evaluation_protocol]
+tags: ["evaluation_protocol"]
 pin: false
-score: 0.3496940024479804
-dwell: 1
+score: 0.2843404255319149
+dwell: 2
 ---
 # 论文阅读笔记：《Agent-as-a-Judge》（原始 + 综述）
 

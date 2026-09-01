@@ -1,9 +1,9 @@
 ---
 zone: active
-tags: [update_weights]
+tags: ["update_weights"]
 pin: false
-score: 0.2514075887392901
-dwell: 1
+score: 0.2681702127659574
+dwell: 2
 ---
 # 论文阅读笔记：《AgentHER: Hindsight Experience Replay for LLM Agent Trajectory Relabeling》
 

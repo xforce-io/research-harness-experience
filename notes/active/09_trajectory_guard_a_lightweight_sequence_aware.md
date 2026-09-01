@@ -1,9 +1,9 @@
 ---
 zone: active
-tags: [capture_stream]
+tags: ["capture_stream"]
 pin: false
-score: 0.5243574051407589
-dwell: 1
+score: 0.45038297872340416
+dwell: 2
 ---
 # 论文阅读笔记：《Trajectory Guard — A Lightweight, Sequence-Aware Model for Real-Time Anomaly Detection in Agentic AI》
 

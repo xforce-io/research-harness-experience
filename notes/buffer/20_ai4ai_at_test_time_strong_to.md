@@ -1,9 +1,9 @@
 ---
-zone: active
-tags: [update_harness, evaluation_protocol]
+zone: buffer
+tags: ["update_harness","evaluation_protocol"]
 pin: false
-score: 0.8
-dwell: 2
+score: 0.39021276595744686
+dwell: 0
 ---
 # AI4AI at Test-Time: Strong-to-Weak Capability Transfer via Harnesses
 

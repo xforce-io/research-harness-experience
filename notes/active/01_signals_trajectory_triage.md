@@ -1,9 +1,9 @@
 ---
 zone: active
-tags: [capture_stream]
+tags: ["capture_stream"]
 pin: false
-score: 0.36988984088127297
-dwell: 1
+score: 0.3734468085106383
+dwell: 2
 ---
 # 论文阅读笔记：《Signals: Trajectory Sampling and Triage for Agentic Interactions》
 

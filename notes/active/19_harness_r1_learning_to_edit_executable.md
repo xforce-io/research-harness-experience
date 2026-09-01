@@ -1,9 +1,9 @@
 ---
 zone: active
-tags: [update_harness, evaluation_protocol]
+tags: ["update_harness","evaluation_protocol"]
 pin: false
-score: 0.41395348837209306
-dwell: 1
+score: 0.629531914893617
+dwell: 2
 ---
 # Harness-R1: Learning to Edit Executable Runtime Harnesses from Agent Failure Trajectories
 

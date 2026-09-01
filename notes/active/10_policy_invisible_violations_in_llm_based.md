@@ -1,9 +1,9 @@
 ---
 zone: active
-tags: [capture_stream]
+tags: ["capture_stream"]
 pin: false
-score: 0.5942472460220318
-dwell: 1
+score: 0.4919148936170213
+dwell: 2
 ---
 # 论文阅读笔记：《Policy-Invisible Violations in LLM-Based Agents》
 
