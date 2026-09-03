@@ -31,31 +31,31 @@ Silver & Sutton《Welcome to the Era of Experience》把改进介质从人类数
 
 | # | 论文 | 研究层 | 优先级 | 笔记 |
 |---|------|--------|--------|------|
-| 1 | Signals: Trajectory Sampling and Triage | L1 筛选分诊 | P0 | ✅ |
-| 2 | AgentHER: Hindsight Experience Replay | 更新 A | P0 | ✅ |
-| 3 | TSR: Trajectory-Search Rollouts | 更新 A | P2 | ✅ |
-| 4 | AgentTrace: Structured Logging | L0 基础设施 | P0 | ✅ |
-| 5 | Breaking the Observability Tax | L0 基础设施 | P1 | 🟡 |
-| 6 | AgentSeer: Agentic Vulnerabilities | L1 筛选分诊 | P1 | 🔲 |
-| 7 | Agent-as-a-Judge | 评估范式 | P2 | 🟡 |
-| 8 | TIDE / TRACE | 评估范式 | P2 | 🟡 |
-| 9 | Trajectory Guard: Sequence-Aware Anomaly Detection | L1 筛选分诊 | P1 | ✅ |
-| 10 | Sentinel / PhantomPolicy: Counterfactual KG Verifier | L1 筛选分诊 | P1 | ✅ |
-| 11 | Near-Miss: Latent Policy Failure Detection | 评估 / L1 筛选 | P1 | ✅ |
-| 12 | Agentic Harness Engineering (observability-driven evolution) | 更新 B / 评价门 | P2 | ✅ |
-| 13 | Where LLM Agents Fail and How They Learn (AgentDebug) | 非更新（in-flight） | P2 | ✅ |
-| 14 | Autodata: automatic data scientist | 更新 B | P2 | ✅ |
-| 15 | AEVO: Harnessing Agentic Evolution | 更新 B | P2 | ✅ |
-| 16 | SWE-PRM: Course-Correcting SWE Agents with PRMs | 非更新（in-flight） | P2 | ✅ |
-| 17 | MASPrism: Lightweight Failure Attribution (prefill-stage signals) | 评估范式 (within-trace attribution) | P2 | ✅ |
-| 18 | AgenTracer: Who Is Inducing Failure in MAS (trained 8B tracer) | 评估范式 (within-trace attribution) | P2 | ✅ |
-| 19 | Harness-R1: Learning to Edit Executable Runtime Harnesses | 更新 B | P0 | ✅ |
-| 20 | AI4AI at Test-Time (strong-to-weak harness) | 更新 B / 评价门 | P1 | ✅ |
-| 21 | Rethinking the Evaluation of Harness Evolution | 评价 | P0 | ✅ |
-| 22 | Sample-efficient learning from agent experience | 更新 A | P2 | ✅ |
-| 23 | TRACE: Turn-level reward assignment | 更新 A | P1 | ✅ |
-| 24 | Recuris: Recursive Experiential–Working Memory Evolution | 更新 B / 评价门 | P1 | ✅ |
 | 25 | SKILLSTATE: Scalable Long-Horizon Agent Skills | 更新 B（执行底物）/ L0 | P1 | ✅ |
+| 24 | Recuris: Recursive Experiential–Working Memory Evolution | 更新 B / 评价门 | P1 | ✅ |
+| 23 | TRACE: Turn-level reward assignment | 更新 A | P1 | ✅ |
+| 22 | Sample-efficient learning from agent experience | 更新 A | P2 | ✅ |
+| 21 | Rethinking the Evaluation of Harness Evolution | 评价 | P0 | ✅ |
+| 20 | AI4AI at Test-Time (strong-to-weak harness) | 更新 B / 评价门 | P1 | ✅ |
+| 19 | Harness-R1: Learning to Edit Executable Runtime Harnesses | 更新 B | P0 | ✅ |
+| 18 | AgenTracer: Who Is Inducing Failure in MAS (trained 8B tracer) | 评估范式 (within-trace attribution) | P2 | ✅ |
+| 17 | MASPrism: Lightweight Failure Attribution (prefill-stage signals) | 评估范式 (within-trace attribution) | P2 | ✅ |
+| 16 | SWE-PRM: Course-Correcting SWE Agents with PRMs | 非更新（in-flight） | P2 | ✅ |
+| 15 | AEVO: Harnessing Agentic Evolution | 更新 B | P2 | ✅ |
+| 14 | Autodata: automatic data scientist | 更新 B | P2 | ✅ |
+| 13 | Where LLM Agents Fail and How They Learn (AgentDebug) | 非更新（in-flight） | P2 | ✅ |
+| 12 | Agentic Harness Engineering (observability-driven evolution) | 更新 B / 评价门 | P2 | ✅ |
+| 11 | Near-Miss: Latent Policy Failure Detection | 评估 / L1 筛选 | P1 | ✅ |
+| 10 | Sentinel / PhantomPolicy: Counterfactual KG Verifier | L1 筛选分诊 | P1 | ✅ |
+| 9 | Trajectory Guard: Sequence-Aware Anomaly Detection | L1 筛选分诊 | P1 | ✅ |
+| 8 | TIDE / TRACE | 评估范式 | P2 | 🟡 |
+| 7 | Agent-as-a-Judge | 评估范式 | P2 | 🟡 |
+| 6 | AgentSeer: Agentic Vulnerabilities | L1 筛选分诊 | P1 | 🔲 |
+| 5 | Breaking the Observability Tax | L0 基础设施 | P1 | 🟡 |
+| 4 | AgentTrace: Structured Logging | L0 基础设施 | P0 | ✅ |
+| 3 | TSR: Trajectory-Search Rollouts | 更新 A | P2 | ✅ |
+| 2 | AgentHER: Hindsight Experience Replay | 更新 A | P0 | ✅ |
+| 1 | Signals: Trajectory Sampling and Triage | L1 筛选分诊 | P0 | ✅ |
 
 > **图例:** ✅ 全文已读 | 🟡 摘要/综述已读 | 🔲 待读
 
